@@ -1,5 +1,6 @@
 package app.virtual_guardian.service;
 
+import app.virtual_guardian.dto.LoginDTO;
 import app.virtual_guardian.dto.UserDTO;
 import app.virtual_guardian.dto.builder.UserBuilder;
 import app.virtual_guardian.entity.Admin;
@@ -86,5 +87,12 @@ public class UserService {
     public User getUserById(String userId){
         Optional<User> user = userRepository.findById(userId);
         return user.orElse(null);
+    }
+
+    public UserDTO getUserFromLogin(LoginDTO loginDTO){
+        User user = userRepository.findUserByUsernameAndPassword(loginDTO.getUsername(), loginDTO.getPassword());
+        if(user != null)
+            return UserBuilder.toUserDTOWithDetails(user);
+        return null;
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-//@CrossOrigin
 @CrossOrigin(origins = "*")
 public class IndexController {
 
