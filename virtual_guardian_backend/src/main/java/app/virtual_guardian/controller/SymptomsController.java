@@ -26,7 +26,7 @@ public class SymptomsController {
         this.diseaseService = diseaseService;
     }
 
-    //-------------------------------------GET SYMPTOMS-----------------------------------
+    //-------------------------------------GET SYMPTOMS----------------------------------- TODO
     @RequestMapping(value = "/get_symptoms", method = RequestMethod.GET)
     public ResponseEntity<List<SymptomDTO>> getListOfSymptoms() {
         List<Symptom> symptoms = symptomsService.getAllSymptoms();
@@ -34,7 +34,7 @@ public class SymptomsController {
         return new ResponseEntity<>(symptomsDTO, HttpStatus.OK);
     }
 
-    //-------------------------------GET SYMPTOMS OF DISEASE------------------------------
+    //-------------------------------GET SYMPTOMS OF DISEASE------------------------------ TODO
     @RequestMapping(value = "/get_symptoms/disease/{diseaseId}", method = RequestMethod.GET)
     public ResponseEntity<List<SymptomDTO>> getListOfSymptomsOfDisease(@PathVariable("diseaseId") Integer diseaseId) {
         Disease disease = diseaseService.getDisease(diseaseId);

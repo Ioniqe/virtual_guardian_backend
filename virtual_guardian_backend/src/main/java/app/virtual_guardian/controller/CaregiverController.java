@@ -43,7 +43,7 @@ public class CaregiverController {
         return dto;
     }
 
-    //----------------------------------CREATE-----------------------------
+    //----------------------------------CREATE----------------------------- TODO
     @RequestMapping(value = "/caregiver/new", method = RequestMethod.POST)
     public ResponseEntity saveCaregiver(@RequestBody UserDTO userDTO) {
         User user = userService.getInsertedUser(userDTO);
@@ -51,7 +51,7 @@ public class CaregiverController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    //----------------------------------READ----------------------------------
+    //----------------------------------READ---------------------------------- TODO
     @RequestMapping(value = "/caregiver/{userId}", method = RequestMethod.GET)
     public ResponseEntity<UserDTO> readDoctor(@PathVariable("userId") String userId) {
         UserDTO dto = verifyCaregiverExistence(userId);
@@ -60,7 +60,7 @@ public class CaregiverController {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    //----------------------------------DELETE-----------------------------
+    //----------------------------------DELETE----------------------------- TODO
     @RequestMapping(value = "/caregiver/delete/{userId}", method = { RequestMethod.GET, RequestMethod.DELETE })
     public ResponseEntity deleteCaregiver(@PathVariable("userId") String userId) {
         //update patient with caregiverId: null

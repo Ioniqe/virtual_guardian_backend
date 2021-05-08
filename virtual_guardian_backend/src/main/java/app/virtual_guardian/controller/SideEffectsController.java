@@ -26,7 +26,7 @@ public class SideEffectsController {
         this.medicationService = medicationService;
     }
 
-    //-------------------------------GET SIDE EFFECTS------------------------------
+    //-------------------------------GET SIDE EFFECTS------------------------------ TODO
     @RequestMapping(value = "/get_side_effects", method = RequestMethod.GET)
     public ResponseEntity<List<SideEffectsDTO>> getListOfSideEffects() {
         List<SideEffect> sideEffects = sideEffectsService.getAllSideEffects();
@@ -34,7 +34,7 @@ public class SideEffectsController {
         return new ResponseEntity<>(sideEffectDTOS, HttpStatus.OK);
     }
 
-    //-------------------------------GET SIDE EFFECTS OF MEDICATION------------------------------
+    //-------------------------------GET SIDE EFFECTS OF MEDICATION------------------------------ TODO
     @RequestMapping(value = "/get_side_effects/medication/{medicationId}", method = RequestMethod.GET)
     public ResponseEntity<List<SideEffectsDTO>> getListOfSideEffectsOfMedication(@PathVariable("medicationId") String medicationId) {
         Medication medication = medicationService.getMedication(medicationId);

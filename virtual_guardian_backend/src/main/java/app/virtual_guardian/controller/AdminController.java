@@ -12,6 +12,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @CrossOrigin(origins = "*")
 public class AdminController {
@@ -49,7 +52,7 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    //----------------------------------READ----------------------------------
+    //----------------------------------READ---------------------------------- TODO
     @RequestMapping(value = "/admin/{userId}", method = RequestMethod.GET)
     public ResponseEntity<UserDTO> readAdmin(@PathVariable("userId") String userId) {
         UserDTO dto = verifyAdminExistence(userId);
@@ -58,23 +61,39 @@ public class AdminController {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    //----------------------------------UPDATE-----------------------------
-    @RequestMapping(value = "/admin/update", method = RequestMethod.PUT)
-    public ResponseEntity updateAdmin(@RequestBody UserDTO newUserDTO) {
-        UserDTO dto = verifyAdminExistence(newUserDTO.getId());
-        if(dto == null)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        userService.updateUser(newUserDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+    //----------------------------------READ ALL---------------------------------- TODO
+    @RequestMapping(value = "/admin/all", method = RequestMethod.GET)
+    public ResponseEntity<List<UserDTO>> readAllAdmins() {
+        List<User> admins = userService.getAllAdmins();
+        List<UserDTO> adminsDTO = new ArrayList<>();
+        admins.forEach(admin -> adminsDTO.add(UserBuilder.toUserDTOWithDetails(admin)));
+        return new ResponseEntity<>(adminsDTO, HttpStatus.OK);
     }
 
-    //----------------------------------DELETE-----------------------------
-    @RequestMapping(value = "/admin/delete/{userId}", method = RequestMethod.DELETE)
-    public ResponseEntity deleteAdmin(@PathVariable("userId") String userId) {
-        User user = userService.getUserById(userId);
-        if(user == null)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
-        userService.deleteUser(userId);
+//    //----------------------------------UPDATE-----------------------------
+//    @RequestMapping(value = "/admin/update", method = RequestMethod.PUT)
+//    public ResponseEntity updateAdmin(@RequestBody UserDTO newUserDTO) {
+//        UserDTO dto = verifyAdminExistence(newUserDTO.getId());
+//        if(dto == null)
+//            return new ResponseEntity(HttpStatus.NOT_FOUND);
+//        userService.updateUser(newUserDTO);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+
+//    //----------------------------------DELETE-----------------------------
+//    @RequestMapping(value = "/admin/delete/{userId}", method = RequestMethod.DELETE)
+//    public ResponseEntity deleteAdmin(@PathVariable("userId") String userId) {
+//        User user = userService.getUserById(userId);
+//        if(user == null)
+//            return new ResponseEntity(HttpStatus.NOT_FOUND);
+//        userService.deleteUser(userId);
+//        return new ResponseEntity<>(HttpStatus.OK);
+//    }
+
+    //----------------------------------DELETE ADMINS----------------------------- TODO
+    @RequestMapping(value = "/admin/delete/bulk", method = RequestMethod.DELETE)
+    public ResponseEntity deleteAdmins(@RequestBody List<String> adminsToBeDeleted) {
+        adminsToBeDeleted.forEach(userService::deleteUser);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

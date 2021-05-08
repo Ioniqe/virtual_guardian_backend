@@ -26,7 +26,7 @@ public class AppointmentController {
         this.appointmentService = appointmentService;
     }
 
-    //----------------------------------CREATE-----------------------------
+    //----------------------------------CREATE----------------------------- TODO
     @RequestMapping(value = "/appointment/new/{userId}", method = RequestMethod.POST)
     public ResponseEntity createAppointment(@PathVariable("userId") String userId, @RequestBody AppointmentDTO appointmentDTO) {
         Patient patient = patientService.getPatient(userId);
@@ -39,7 +39,7 @@ public class AppointmentController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    //----------------------------------READ-----------------------------
+    //----------------------------------READ----------------------------- TODO
     @RequestMapping(value = "/appointments/get/{userId}", method = RequestMethod.GET)
     public ResponseEntity<List<AppointmentDTO>> getAppointmentsList(@PathVariable("userId") String userId) {
         Patient patient = patientService.getPatient(userId);
@@ -52,7 +52,7 @@ public class AppointmentController {
         return new ResponseEntity<>(appointmentListDTO, HttpStatus.OK);
     }
 
-    //----------------------------------UPDATE-----------------------------
+    //----------------------------------UPDATE----------------------------- TODO
     @RequestMapping(value = "/appointment/update", method = RequestMethod.PUT)
     public ResponseEntity updateAppointment(@RequestBody AppointmentDTO newAppointmentDTO) {
         Appointment appointment = appointmentService.getAppointmentById(newAppointmentDTO.getId());
@@ -68,7 +68,7 @@ public class AppointmentController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //----------------------------------DELETE-----------------------------
+    //----------------------------------DELETE----------------------------- TODO
     @RequestMapping(value = "/appointment/delete/{appointmentId}", method = RequestMethod.DELETE)
     public ResponseEntity deleteAppointment(@PathVariable("appointmentId") Integer appointmentId) {
         Appointment appointment = appointmentService.getAppointmentById(appointmentId);

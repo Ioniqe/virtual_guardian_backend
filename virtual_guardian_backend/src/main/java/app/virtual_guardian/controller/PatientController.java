@@ -36,7 +36,7 @@ public class PatientController {
         this.treatmentService = treatmentService;
     }
 
-    //---------------------------------CREATE---------------------------------
+    //---------------------------------CREATE--------------------------------- TODO
     @RequestMapping(value = "/patient/new/{doctorUserId}", method = { RequestMethod.GET, RequestMethod.POST })
     public ResponseEntity savePatient(@RequestBody PatientDTO patientDTO, @PathVariable("doctorUserId") String doctorUserId) {
         UserDTO userDTO = UserBuilder.toUserDTOFromPatientDTO(patientDTO);
@@ -61,7 +61,7 @@ public class PatientController {
         return dto;
     }
 
-    //-----------------------------------READ------------------------------
+    //-----------------------------------READ------------------------------ TODO
     @RequestMapping(value = "/patient/{userId}", method = RequestMethod.GET)
     public ResponseEntity<PatientDTO> readPatient(@PathVariable("userId") String userId) {
         UserDTO userDTO = verifyPatientExistence(userId);
@@ -72,7 +72,7 @@ public class PatientController {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    //----------------------------------UPDATE-----------------------------
+    //----------------------------------UPDATE----------------------------- TODO
     @RequestMapping(value = "/patient/update", method = RequestMethod.PUT)
     public ResponseEntity updatePatient(@RequestBody PatientDTO newPatientDTO) {
         UserDTO userDTO = verifyPatientExistence(newPatientDTO.getId());
@@ -84,7 +84,7 @@ public class PatientController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //----------------------------------DELETE-----------------------------
+    //----------------------------------DELETE----------------------------- TODO
     @RequestMapping(value = "/patient/delete/{userId}", method = RequestMethod.DELETE)
     public ResponseEntity deletePatient(@PathVariable("userId") String userId) {
         Patient patient = patientService.getPatient(userId);
@@ -95,7 +95,7 @@ public class PatientController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    //---------------------------------ASSIGN CAREGIVER---------------------------------
+    //---------------------------------ASSIGN CAREGIVER--------------------------------- TODO
     @RequestMapping(value = "/patient/set_caregiver/{patientUserId}/{caregiverUserId}", method = RequestMethod.POST)
     public ResponseEntity setCaregiverToPatientByPeopleId(@PathVariable("patientUserId") String patientUserId, @PathVariable("caregiverUserId") String caregiverUserId) {
         UserDTO userDTO = verifyPatientExistence(patientUserId);
@@ -122,7 +122,7 @@ public class PatientController {
         return new ResponseEntity<>(patients, HttpStatus.OK);
     }
 
-    //----------------------------------GET LIST OF PATIENTS OF DOCTOR----------------------------------
+    //----------------------------------GET LIST OF PATIENTS OF DOCTOR---------------------------------- TODO
     @RequestMapping(value = "/get_patients/doctor/{userId}", method = RequestMethod.GET) //TODO verify that this works
     public ResponseEntity<List<PatientDTO>> getListOfPatientsOfDoctor(@PathVariable("userId") String userId) {
         Doctor doctor = doctorService.getDoctorById(userId);
@@ -130,7 +130,7 @@ public class PatientController {
         return getListResponseEntity(doctor == null, doctor.getListOfPatients());
     }
 
-    //----------------------------------GET LIST OF PATIENTS OF CAREGIVER----------------------------------
+    //----------------------------------GET LIST OF PATIENTS OF CAREGIVER---------------------------------- TODO
     @RequestMapping(value = "/get_patients/caregiver/{userId}", method = RequestMethod.GET) //TODO verify that this works
     public ResponseEntity<List<PatientDTO>> getListOfPatientsOfCaregiver(@PathVariable("userId") String userId) {
         Caregiver caregiver = caregiverService.getCaregiver(userId);
@@ -138,7 +138,7 @@ public class PatientController {
         return getListResponseEntity(caregiver == null, caregiver.getListOfPatients());
     }
 
-    //---------------------------------GET TREATMENTS OF PATIENT---------------------------------
+    //---------------------------------GET TREATMENTS OF PATIENT--------------------------------- TODO
     @RequestMapping(value = "/treatments/{userId}", method = RequestMethod.GET)
     public ResponseEntity<List<TreatmentDTO>> getTreatmentsOfPatient(@PathVariable("userId") String userId) {
         UserDTO userDTO = verifyPatientExistence(userId);

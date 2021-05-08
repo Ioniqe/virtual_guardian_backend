@@ -25,7 +25,7 @@ public class MedicationListController {
         this.treatmentService = treatmentService;
     }
 
-    //---------------------------------ADD MEDICATION TO MEDICATION LIST---------------------------------
+    //---------------------------------ADD MEDICATION TO MEDICATION LIST--------------------------------- TODO
     @RequestMapping(value = "/treatment/add_medication", method = RequestMethod.POST)
     public ResponseEntity addMedicationToTreatment(@RequestBody MedicationListDTO medicationListDTO){
         Medication medication = medicationService.getMedication(medicationListDTO.getMedicationId());

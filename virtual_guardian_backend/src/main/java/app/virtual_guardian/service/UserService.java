@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -94,5 +95,10 @@ public class UserService {
         if(user != null)
             return UserBuilder.toUserDTOWithDetails(user);
         return null;
+    }
+
+    public List<User> getAllAdmins(){
+        UserType userType = userTypeRepository.findUserTypeByType("admin");
+        return userRepository.findAllByTypeIs(userType);
     }
 }

@@ -23,7 +23,7 @@ public class TreatmentController {
         this.patientService = patientService;
     }
 
-    //---------------------------------CREATE---------------------------------
+    //---------------------------------CREATE--------------------------------- TODO
     @RequestMapping(value = "/treatment/new/{userId}", method = RequestMethod.POST)
     public ResponseEntity createTreatment(@PathVariable("userId") String userId, @RequestBody TreatmentDTO treatmentDTO) {
         Patient patient = patientService.getPatient(userId);
@@ -36,7 +36,7 @@ public class TreatmentController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    //---------------------------------DELETE---------------------------------
+    //---------------------------------DELETE--------------------------------- TODO
     @RequestMapping(value = "/treatment/delete/{treatmentId}", method = RequestMethod.DELETE)
     public ResponseEntity deleteTreatment(@PathVariable("treatmentId") Integer treatmentId) {
         Treatment treatment = treatmentService.getTreatment(treatmentId);

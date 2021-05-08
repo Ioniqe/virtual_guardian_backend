@@ -22,7 +22,7 @@ public class SpecialCredentialsController {
         this.specialCredentialsService = specialCredentialsService;
     }
 
-    //---------------------------------CREATE---------------------------------
+    //---------------------------------CREATE--------------------------------- TODO
     @RequestMapping(value = "/specialCredentials/new", method = RequestMethod.POST)
     public ResponseEntity createSpecialCredential(@RequestBody SpecialCredentialsDTO specialCredentialsDTO) {
         SpecialCredentials specialCredentials = SpecialCredentialsBuilder.toEntity(specialCredentialsDTO);
@@ -30,7 +30,7 @@ public class SpecialCredentialsController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    //---------------------------------READ---------------------------------
+    //---------------------------------READ--------------------------------- TODO
     @RequestMapping(value = "/specialCredentials/all", method = RequestMethod.GET)
     public ResponseEntity<List<SpecialCredentials>> geSpecialCredentialsList() {
         List<SpecialCredentials> specialCredentialsList = specialCredentialsService.getAllDoctorIds();

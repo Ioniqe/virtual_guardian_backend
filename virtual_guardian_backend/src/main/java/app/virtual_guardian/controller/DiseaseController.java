@@ -26,7 +26,7 @@ public class DiseaseController {
         this.patientService = patientService;
     }
 
-    //---------------------------------ADD DISEASE TO PATIENT---------------------------------
+    //---------------------------------ADD DISEASE TO PATIENT--------------------------------- TODO
     @RequestMapping(value = "/patient/add_disease/{patientUserId}/{diseaseId}", method = RequestMethod.POST)
     public ResponseEntity addDiseaseToPatient(@PathVariable("patientUserId") String userId, @PathVariable("diseaseId") Integer diseaseId){
         Patient patient = patientService.getPatient(userId);
@@ -45,7 +45,7 @@ public class DiseaseController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    //---------------------------------REMOVE DISEASE FROM PATIENT---------------------------------
+    //---------------------------------REMOVE DISEASE FROM PATIENT--------------------------------- TODO
     @RequestMapping(value = "/patient/remove_disease/{patientUserId}/{diseaseId}", method = RequestMethod.PUT)
     public ResponseEntity removeDiseaseFromPatient(@PathVariable("patientUserId") String userId, @PathVariable("diseaseId") Integer diseaseId){
         Patient patient = patientService.getPatient(userId);
@@ -67,7 +67,7 @@ public class DiseaseController {
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    //---------------------------------GET DISEASES OF PATIENT---------------------------------
+    //---------------------------------GET DISEASES OF PATIENT--------------------------------- TODO
     @RequestMapping(value = "/patient/get_diseases/{patientUserId}", method = RequestMethod.GET)
     public ResponseEntity getDiseasesOfPatient(@PathVariable("patientUserId") String userId){
         Patient patient = patientService.getPatient(userId);
@@ -79,7 +79,7 @@ public class DiseaseController {
         return new ResponseEntity<>(diseasesDTO, HttpStatus.OK);
     }
 
-    //---------------------------------GET DISEASES LIST---------------------------------
+    //---------------------------------GET DISEASES LIST--------------------------------- TODO
     @RequestMapping(value = "/get_diseases", method = RequestMethod.GET)
     public ResponseEntity<List<DiseaseDTO>> getDiseasesList(){
         List<Disease> diseases = diseaseService.getDiseases();

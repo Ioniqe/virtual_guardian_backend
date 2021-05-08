@@ -52,7 +52,7 @@ public class DoctorController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    //----------------------------------READ----------------------------------
+    //----------------------------------READ---------------------------------- TODO
     @RequestMapping(value = "/doctor/{userId}", method = RequestMethod.GET)
     public ResponseEntity<UserDTO> readDoctor(@PathVariable("userId") String userId) {
         UserDTO dto = verifyDoctorExistence(userId);

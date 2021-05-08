@@ -27,7 +27,7 @@ public class MedicationController {
         this.treatmentService = treatmentService;
     }
 
-    //----------------------GET MEDICATIONS OF TREATMENT----------------------------
+    //----------------------GET MEDICATIONS OF TREATMENT---------------------------- TODO
     @RequestMapping(value = "/get_medications/{treatmentId}", method = RequestMethod.GET)
     public ResponseEntity getMedicationsOfTreatment(@PathVariable("treatmentId") Integer treatmentId) {
         Treatment treatment = treatmentService.getTreatment(treatmentId);
