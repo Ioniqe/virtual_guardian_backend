@@ -1,8 +1,11 @@
 # Dependencies
 from flask import Flask, request, jsonify
 import pickle 
+from flask_cors import CORS, cross_origin
+
 # Your API definition
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/predict/day', methods=['POST'])
 def predict_day():
@@ -11,10 +14,13 @@ def predict_day():
         model = pickle.load(open('anomaly_detection.pkl', 'rb'))
         prediction = 'normal' if model.predict(user_input)[0] == 0 else 'anomalous'
 
+        print('PREDICTION')
+        print(prediction)
+
         return jsonify({'prediction': prediction})
 
     except:
-        return jsonify({'trace': traceback.format_exc()})
+        return 500
 
 @app.route('/predict/disease', methods=['POST'])
 def predict_disease():
@@ -23,10 +29,13 @@ def predict_disease():
         model = pickle.load(open('disease_detection.pkl', 'rb'))
         prediction = model.predict(user_input)[0]
         
+        print('PREDICTION')
+        print(prediction)
+
         return jsonify({'disease': prediction})
 
     except:
-        return jsonify({'trace': traceback.format_exc()})
+        return 500
 
 if __name__ == '__main__':
     app.run(debug=True)
