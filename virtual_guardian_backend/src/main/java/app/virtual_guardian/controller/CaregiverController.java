@@ -1,6 +1,7 @@
 package app.virtual_guardian.controller;
 
 import app.virtual_guardian.dto.UserDTO;
+import app.virtual_guardian.dto.builder.UserBuilder;
 import app.virtual_guardian.entity.Caregiver;
 import app.virtual_guardian.entity.Patient;
 import app.virtual_guardian.entity.User;
@@ -13,7 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 
@@ -60,30 +63,65 @@ public class CaregiverController {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    //----------------------------------DELETE----------------------------- TODO
-    @RequestMapping(value = "/caregiver/delete/{userId}", method = { RequestMethod.GET, RequestMethod.DELETE })
-    public ResponseEntity deleteCaregiver(@PathVariable("userId") String userId) {
-        //update patient with caregiverId: null
-        Caregiver caregiver = caregiverService.getCaregiver(userId);
+    //----------------------------------READ ALL----------------------------------
+    @RequestMapping(value = "/caregiver/all", method = RequestMethod.GET)
+    public ResponseEntity<List<UserDTO>> readAllCaregivers() {
+        List<User> caregivers = userService.getAllUsersOfAType("caregiver");
+        List<UserDTO> caregiversDTO = new ArrayList<>();
+        caregivers.forEach(caregiver -> caregiversDTO.add(UserBuilder.toUserDTOWithDetails(caregiver)));
+        return new ResponseEntity<>(caregiversDTO, HttpStatus.OK);
+    }
 
-        if(caregiver == null)
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//    //----------------------------------DELETE----------------------------- TODO
+//    @RequestMapping(value = "/caregiver/delete/{userId}", method = { RequestMethod.GET, RequestMethod.DELETE })
+//    public ResponseEntity deleteCaregiver(@PathVariable("userId") String userId) {
+//        //update patient with caregiverId: null
+//        Caregiver caregiver = caregiverService.getCaregiver(userId);
+//
+//        if(caregiver == null)
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//
+//        try {
+//            Set<Patient> patients = caregiver.getListOfPatients();
+//            patients.forEach(patient -> {
+//                patient.setCaregiver(null);
+//                patientService.saveUpdatedPatient(patient);
+//            });
+//        } catch (Exception e) {
+//            System.out.println("Caregiver has no patients");
+//        }
+//
+//        caregiver.setListOfPatients(new HashSet<>());
+//        caregiverService.saveCaregiver(caregiver);
+//
+//
+//        userService.deleteUser(userId);
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
 
-        try {
-            Set<Patient> patients = caregiver.getListOfPatients();
-            patients.forEach(patient -> {
-                patient.setCaregiver(null);
-                patientService.saveUpdatedPatient(patient);
-            });
-        } catch (Exception e) {
-            System.out.println("Caregiver has no patients");
-        }
+    //----------------------------------DELETE CAREGIVERS-----------------------------
+    @RequestMapping(value = "/caregiver/delete/bulk", method = RequestMethod.DELETE)
+    public ResponseEntity deleteCaregivers(@RequestBody List<String> caregiversToBeDeleted) {
+//        caregiversToBeDeleted.forEach(userService::deleteUser);
+        caregiversToBeDeleted.forEach(caregiverId ->{
+            Caregiver caregiver = caregiverService.getCaregiver(caregiverId);
 
-        caregiver.setListOfPatients(new HashSet<>());
-        caregiverService.saveCaregiver(caregiver);
+            try {
+                Set<Patient> patients = caregiver.getListOfPatients();
+                patients.forEach(patient -> {
+                    patient.setCaregiver(null);
+                    patientService.saveUpdatedPatient(patient);
+                });
+            } catch (Exception e) {
+                System.out.println("Caregiver has no patients");
+            }
+
+            caregiver.setListOfPatients(new HashSet<>());
+            caregiverService.saveCaregiver(caregiver);
 
 
-        userService.deleteUser(userId);
-        return new ResponseEntity(HttpStatus.OK);
+            userService.deleteUser(caregiverId);
+        });
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

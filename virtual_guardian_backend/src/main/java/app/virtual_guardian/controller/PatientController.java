@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -72,6 +73,15 @@ public class PatientController {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
+    //-----------------------READ ALL PATIENTS OF DOCTOR-------------------------
+    @RequestMapping(value = "/patient/all/{doctorId}", method = RequestMethod.GET)
+    public ResponseEntity<List<PatientDTO>> readAllPatients(@PathVariable("doctorId") String doctorId) {
+        Doctor doctor = doctorService.getDoctorById(doctorId);
+        Set<Patient> patientsOfDoctor = doctor.getListOfPatients();
+        List<PatientDTO> patientsDTO = PatientBuilder.toPatientDTOListFromPatientSet(patientsOfDoctor);
+        return new ResponseEntity<>(patientsDTO, HttpStatus.OK);
+    }
+
     //----------------------------------UPDATE----------------------------- TODO
     @RequestMapping(value = "/patient/update", method = RequestMethod.PUT)
     public ResponseEntity updatePatient(@RequestBody PatientDTO newPatientDTO) {
@@ -84,15 +94,22 @@ public class PatientController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //----------------------------------DELETE----------------------------- TODO
-    @RequestMapping(value = "/patient/delete/{userId}", method = RequestMethod.DELETE)
-    public ResponseEntity deletePatient(@PathVariable("userId") String userId) {
-        Patient patient = patientService.getPatient(userId);
-        if(patient == null)
-            return new ResponseEntity(HttpStatus.NOT_FOUND);
+//    //----------------------------------DELETE----------------------------- TODO
+//    @RequestMapping(value = "/patient/delete/{userId}", method = RequestMethod.DELETE)
+//    public ResponseEntity deletePatient(@PathVariable("userId") String userId) {
+//        Patient patient = patientService.getPatient(userId);
+//        if(patient == null)
+//            return new ResponseEntity(HttpStatus.NOT_FOUND);
+//
+//        userService.deleteUser(userId);
+//        return new ResponseEntity(HttpStatus.OK);
+//    }
 
-        userService.deleteUser(userId);
-        return new ResponseEntity(HttpStatus.OK);
+    //----------------------------------DELETE PATIENTS-----------------------------
+    @RequestMapping(value = "/patient/delete/bulk", method = RequestMethod.DELETE)
+    public ResponseEntity deletePatients(@RequestBody List<String> patientsToBeDeleted) {
+        patientsToBeDeleted.forEach(userService::deleteUser);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     //---------------------------------ASSIGN CAREGIVER--------------------------------- TODO

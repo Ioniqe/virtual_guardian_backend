@@ -97,8 +97,8 @@ public class UserService {
         return null;
     }
 
-    public List<User> getAllAdmins(){
-        UserType userType = userTypeRepository.findUserTypeByType("admin");
+    public List<User> getAllUsersOfAType(String user_type){
+        UserType userType = userTypeRepository.findUserTypeByType(user_type);
         return userRepository.findAllByTypeIs(userType);
     }
 }

@@ -61,10 +61,10 @@ public class AdminController {
         return new ResponseEntity<>(dto, HttpStatus.OK);
     }
 
-    //----------------------------------READ ALL---------------------------------- TODO
+    //----------------------------------READ ALL----------------------------------
     @RequestMapping(value = "/admin/all", method = RequestMethod.GET)
     public ResponseEntity<List<UserDTO>> readAllAdmins() {
-        List<User> admins = userService.getAllAdmins();
+        List<User> admins = userService.getAllUsersOfAType("admin");
         List<UserDTO> adminsDTO = new ArrayList<>();
         admins.forEach(admin -> adminsDTO.add(UserBuilder.toUserDTOWithDetails(admin)));
         return new ResponseEntity<>(adminsDTO, HttpStatus.OK);
@@ -90,7 +90,7 @@ public class AdminController {
 //        return new ResponseEntity<>(HttpStatus.OK);
 //    }
 
-    //----------------------------------DELETE ADMINS----------------------------- TODO
+    //----------------------------------DELETE ADMINS-----------------------------
     @RequestMapping(value = "/admin/delete/bulk", method = RequestMethod.DELETE)
     public ResponseEntity deleteAdmins(@RequestBody List<String> adminsToBeDeleted) {
         adminsToBeDeleted.forEach(userService::deleteUser);
