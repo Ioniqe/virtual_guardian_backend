@@ -1,5 +1,6 @@
 package app.virtual_guardian.controller;
 
+import app.virtual_guardian.dto.CaregiverDTO;
 import app.virtual_guardian.dto.UserDTO;
 import app.virtual_guardian.dto.builder.UserBuilder;
 import app.virtual_guardian.entity.Caregiver;
@@ -46,7 +47,7 @@ public class CaregiverController {
         return dto;
     }
 
-    //----------------------------------CREATE----------------------------- TODO
+    //----------------------------------CREATE-----------------------------
     @RequestMapping(value = "/caregiver/new", method = RequestMethod.POST)
     public ResponseEntity saveCaregiver(@RequestBody UserDTO userDTO) {
         User user = userService.getInsertedUser(userDTO);
@@ -70,6 +71,18 @@ public class CaregiverController {
         List<UserDTO> caregiversDTO = new ArrayList<>();
         caregivers.forEach(caregiver -> caregiversDTO.add(UserBuilder.toUserDTOWithDetails(caregiver)));
         return new ResponseEntity<>(caregiversDTO, HttpStatus.OK);
+    }
+
+    //----------------------------------UPDATE-----------------------------
+    @RequestMapping(value = "/caregiver/update", method = RequestMethod.PUT)
+    public ResponseEntity updateCaregiver(@RequestBody UserDTO editedCaregiverDTO) {
+        UserDTO userDTO = verifyCaregiverExistence(editedCaregiverDTO.getId());
+
+        if(userDTO == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        userService.updateUser(editedCaregiverDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 //    //----------------------------------DELETE----------------------------- TODO

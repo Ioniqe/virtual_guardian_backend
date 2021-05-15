@@ -82,7 +82,7 @@ public class PatientController {
         return new ResponseEntity<>(patientsDTO, HttpStatus.OK);
     }
 
-    //----------------------------------UPDATE----------------------------- TODO
+    //----------------------------------UPDATE-----------------------------
     @RequestMapping(value = "/patient/update", method = RequestMethod.PUT)
     public ResponseEntity updatePatient(@RequestBody PatientDTO newPatientDTO) {
         UserDTO userDTO = verifyPatientExistence(newPatientDTO.getId());
@@ -139,7 +139,7 @@ public class PatientController {
         return new ResponseEntity<>(patients, HttpStatus.OK);
     }
 
-    //----------------------------------GET LIST OF PATIENTS OF DOCTOR---------------------------------- TODO
+    //----------------------------------GET LIST OF PATIENTS OF DOCTOR----------------------------------
     @RequestMapping(value = "/get_patients/doctor/{userId}", method = RequestMethod.GET) //TODO verify that this works
     public ResponseEntity<List<PatientDTO>> getListOfPatientsOfDoctor(@PathVariable("userId") String userId) {
         Doctor doctor = doctorService.getDoctorById(userId);
