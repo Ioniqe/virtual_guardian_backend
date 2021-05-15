@@ -1,13 +1,21 @@
 package monitoreddata.project.config;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.type.CollectionLikeType;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import monitoreddata.project.dto.MonitoredActivityDTO;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.support.converter.DefaultJackson2JavaTypeMapper;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
 
 @Configuration
 public class RabbitMQConfig {
@@ -32,8 +40,24 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public MessageConverter jsonMessageConverter() {
-        return new Jackson2JsonMessageConverter();
+    public MessageConverter converter() {
+        Jackson2JsonMessageConverter converter = new Jackson2JsonMessageConverter();
+        converter.setJavaTypeMapper(new DefaultJackson2JavaTypeMapper() {
+
+            @Override
+            public JavaType toJavaType(MessageProperties properties) {
+                JavaType javaType = super.toJavaType(properties);
+                if (javaType instanceof CollectionLikeType) {
+                    return TypeFactory.defaultInstance()
+                            .constructCollectionLikeType(List.class, MonitoredActivityDTO.class);
+                }
+                else {
+                    return javaType;
+                }
+            }
+
+        });
+        return converter;
     }
 
     @Bean
@@ -46,7 +70,7 @@ public class RabbitMQConfig {
     @Bean
     public AmqpTemplate rabbitTempl(final ConnectionFactory connectionFactory) {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(jsonMessageConverter());
+        rabbitTemplate.setMessageConverter(converter());
         return rabbitTemplate;
     }
 

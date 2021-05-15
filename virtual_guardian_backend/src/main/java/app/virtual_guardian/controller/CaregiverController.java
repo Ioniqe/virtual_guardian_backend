@@ -1,6 +1,5 @@
 package app.virtual_guardian.controller;
 
-import app.virtual_guardian.dto.CaregiverDTO;
 import app.virtual_guardian.dto.UserDTO;
 import app.virtual_guardian.dto.builder.UserBuilder;
 import app.virtual_guardian.entity.Caregiver;
@@ -84,33 +83,6 @@ public class CaregiverController {
         userService.updateUser(editedCaregiverDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-//    //----------------------------------DELETE----------------------------- TODO
-//    @RequestMapping(value = "/caregiver/delete/{userId}", method = { RequestMethod.GET, RequestMethod.DELETE })
-//    public ResponseEntity deleteCaregiver(@PathVariable("userId") String userId) {
-//        //update patient with caregiverId: null
-//        Caregiver caregiver = caregiverService.getCaregiver(userId);
-//
-//        if(caregiver == null)
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//
-//        try {
-//            Set<Patient> patients = caregiver.getListOfPatients();
-//            patients.forEach(patient -> {
-//                patient.setCaregiver(null);
-//                patientService.saveUpdatedPatient(patient);
-//            });
-//        } catch (Exception e) {
-//            System.out.println("Caregiver has no patients");
-//        }
-//
-//        caregiver.setListOfPatients(new HashSet<>());
-//        caregiverService.saveCaregiver(caregiver);
-//
-//
-//        userService.deleteUser(userId);
-//        return new ResponseEntity(HttpStatus.OK);
-//    }
 
     //----------------------------------DELETE CAREGIVERS-----------------------------
     @RequestMapping(value = "/caregiver/delete/bulk", method = RequestMethod.DELETE)

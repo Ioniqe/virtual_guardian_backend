@@ -13,8 +13,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -93,17 +91,6 @@ public class PatientController {
         userService.updateUser(newUserDTO);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-//    //----------------------------------DELETE----------------------------- TODO
-//    @RequestMapping(value = "/patient/delete/{userId}", method = RequestMethod.DELETE)
-//    public ResponseEntity deletePatient(@PathVariable("userId") String userId) {
-//        Patient patient = patientService.getPatient(userId);
-//        if(patient == null)
-//            return new ResponseEntity(HttpStatus.NOT_FOUND);
-//
-//        userService.deleteUser(userId);
-//        return new ResponseEntity(HttpStatus.OK);
-//    }
 
     //----------------------------------DELETE PATIENTS-----------------------------
     @RequestMapping(value = "/patient/delete/bulk", method = RequestMethod.DELETE)
