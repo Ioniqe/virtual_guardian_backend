@@ -17,7 +17,7 @@ def predict_day():
         print('PREDICTION')
         print(prediction)
 
-        return jsonify(prediction)
+        return prediction
 
     except:
         return 500
