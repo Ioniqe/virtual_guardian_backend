@@ -31,6 +31,8 @@ file3 = open('days_type.txt', 'r')
 Lines_labels = file3.readlines()
 file3.close()
 
+FMT = '%H:%M:%S'
+
 def getFeatures_durationFrequencyRatio():
     activity_names = []
     processed = []
@@ -43,15 +45,6 @@ def getFeatures_durationFrequencyRatio():
     for line in Lines:
         _list  = line.split()
 
-        # if _list[1] > _list[2]:
-        #     print('ATTENTION')
-        #     print(line)
-        # if prev_line != [] and prev_line[0] == _list[0] and prev_line[2] > _list[1]:
-        #     print('ATTENTION see prev line')
-        #     print(line)
-
-        # prev_line = _list
-
         if (_list[3] in activity_names) == False:
             activity_names.append(_list[3])
 
@@ -63,10 +56,8 @@ def getFeatures_durationFrequencyRatio():
             activities.append({'day':day, 'list':[{'activity': _list[3], 'start_time': _list[1], 'end_time':_list[2]}]})
         i += 1
 
-    FMT = '%H:%M:%S'
 
     #-------------------------------------------------
-
 
     for activity in activities:
         day = activity['day']
@@ -106,3 +97,23 @@ def getFeatures_durationFrequencyRatio():
 
     features = {'data': x, 'labels': y}
     return features
+
+
+# TODO add more features 
+
+def getFeatures_durationFrequencyRatio_forDay(user_input):
+    activityArray = ["Breakfast", "Dinner", "Grooming", "Leaving", "Lunch", "Showering", "Sleeping", "Snack", "Spare_Time/TV", "Toileting"]
+    computedArray = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+    durationOfActivities = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    frequencyOfActivities = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    for activity in user_input:
+        duration = datetime.strptime(activity['endTime'], FMT) - datetime.strptime(activity['startTime'], FMT)
+        durationOfActivities[activityArray.index(activity['activity'])] += duration.seconds
+        frequencyOfActivities[activityArray.index(activity['activity'])] += 1
+    
+    for i in range(len(computedArray)):
+        if frequencyOfActivities[i] != 0:
+            computedArray[i] = round(durationOfActivities[i] / frequencyOfActivities[i], 2) 
+
+    return computedArray
