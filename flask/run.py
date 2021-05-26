@@ -54,14 +54,15 @@ def train_model():
             model_in_training = LinearRegression().fit(x_train, y_train) 
         elif user_input['algorithm'] == "naiveBayes":
             model_in_training = MultinomialNB().fit(x_train, y_train)
-        else: return '404'
+        else: return jsonify({'score': '404'})
 
         score = model_in_training.score(x_test, y_test)
+        print(score)
         return jsonify({'score': score})
     except:
-        return jsonify({'score': 'unexpected error'})
+        return jsonify({'score': '500'})
 
-@app.route('/test', methods=['GET'])
+@app.route('/set_default', methods=['GET'])
 def set_default():
     global model_in_training;
     global features_for_training;
@@ -80,8 +81,6 @@ def test():
     global model_in_training
     global features_for_training
 
-    print('features_anomaly_detection')
-
     features = getFeatures_durationFrequencyRatio()
     x_train, x_test, y_train, y_test = train_test_split(features['data'], features['labels'], test_size=0.20, random_state=0)
     score = model_in_training.score(x_test, y_test)
@@ -94,6 +93,9 @@ def predict_day():  # only get as input the day, not the features
 
         global model_in_use;
         global features_in_use;
+
+        print(model_in_use)
+        print(features_for_training)
 
         features = []
         if features_in_use == 'durationFrequencyRatio':
@@ -115,24 +117,16 @@ def predict_days():
     try:
         user_input = request.json
         
-        print(user_input)
-
         global model_in_use;
         global features_in_use;
 
         features = [] 
         if features_in_use == 'durationFrequencyRatio':
             for daysActivities in user_input:
-                print('daysActivities')
-                print(daysActivities['activities'])
                 features.append(getFeatures_durationFrequencyRatio_forDay(daysActivities['activities']))
         else: return jsonify({'predictions': 'feature type not found'})
 
-        print('FEATURES')
-        print(features)
-
         results = model_in_use.predict(features)
-        print(results)
 
         pretty_results = []
         for i in range(len(results)):
