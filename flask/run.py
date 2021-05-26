@@ -50,16 +50,16 @@ def train_model():
             model_in_training = DecisionTreeClassifier(max_features = 1).fit(x_train, y_train)
         elif user_input['algorithm'] == "svm":
             model_in_training = svm.SVC(kernel='linear').fit(x_train, y_train) 
-        elif user_input['algorithm'] == "linear":
+        elif user_input['algorithm'] == "linearRegression":
             model_in_training = LinearRegression().fit(x_train, y_train) 
-        elif user_input['algorithm'] == "multinomial":
+        elif user_input['algorithm'] == "naiveBayes":
             model_in_training = MultinomialNB().fit(x_train, y_train)
         else: return '404'
 
         score = model_in_training.score(x_test, y_test)
         return jsonify({'score': score})
     except:
-        return '500'
+        return jsonify({'score': 'unexpected error'})
 
 @app.route('/test', methods=['GET'])
 def set_default():
@@ -108,7 +108,41 @@ def predict_day():  # only get as input the day, not the features
         return jsonify({'prediction': prediction})
     except:
         print('EXCEPTION')
-        return jsonify({'prediction': 'unexpected_result'})
+        return jsonify({'prediction': 'unexpected error'})
+
+@app.route('/predict/days', methods=['POST'])
+def predict_days():
+    try:
+        user_input = request.json
+        
+        print(user_input)
+
+        global model_in_use;
+        global features_in_use;
+
+        features = [] 
+        if features_in_use == 'durationFrequencyRatio':
+            for daysActivities in user_input:
+                print('daysActivities')
+                print(daysActivities['activities'])
+                features.append(getFeatures_durationFrequencyRatio_forDay(daysActivities['activities']))
+        else: return jsonify({'predictions': 'feature type not found'})
+
+        print('FEATURES')
+        print(features)
+
+        results = model_in_use.predict(features)
+        print(results)
+
+        pretty_results = []
+        for i in range(len(results)):
+            pretty_results.append({'day': user_input[i]['day'], 'result': 'anomalous' if results[i] == 1 else 'normal'})
+
+        return jsonify({'predictions': pretty_results})
+    except:
+        print('EXCEPTION')
+        return jsonify({'predictions': 'unexpected error'})
+
 
 @app.route('/predict/disease', methods=['POST'])
 def predict_disease():
@@ -123,7 +157,7 @@ def predict_disease():
         return jsonify({'disease': prediction})
 
     except:
-        return '500'
+        return jsonify({'disease': 'unexpected error'})
 
 if __name__ == '__main__':
     app.run(debug=True)

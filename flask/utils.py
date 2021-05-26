@@ -111,9 +111,7 @@ def getFeatures_durationFrequencyRatio_forDay(user_input):
         duration = datetime.strptime(activity['endTime'], FMT) - datetime.strptime(activity['startTime'], FMT)
         durationOfActivities[activityArray.index(activity['activity'])] += duration.seconds
         frequencyOfActivities[activityArray.index(activity['activity'])] += 1
-    
     for i in range(len(computedArray)):
         if frequencyOfActivities[i] != 0:
             computedArray[i] = round(durationOfActivities[i] / frequencyOfActivities[i], 2) 
-
     return computedArray
