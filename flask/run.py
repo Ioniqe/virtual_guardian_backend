@@ -24,7 +24,7 @@ features_for_training = 'durationFrequencyRatio'
 model_in_use = pickle.load(open('anomaly_detection.pkl', 'rb'))
 features_in_use = 'durationFrequencyRatio'
 
-@app.route('/train_model', methods=['POST'])
+@app.route('/train_model', methods=['POST']) #TODO ia label-urile din DB
 def train_model():
     try:
         user_input = request.json
@@ -104,6 +104,7 @@ def predict_day():  # only get as input the day, not the features
 
         prediction = 'normal' if model_in_use.predict([features])[0] == 0 else 'anomalous'  #trebe [0]
 
+        print(user_input['arr'][0]['day'])
         print('PREDICTION')
         print(prediction)
 

@@ -2,7 +2,6 @@ package app.virtual_guardian.service;
 
 import app.virtual_guardian.dto.MonitoredActivityDTO;
 import app.virtual_guardian.dto.Prediction;
-import app.virtual_guardian.utils.UsefulMethods;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -58,6 +57,8 @@ public class ConsumerService {
                 String toBeSent = "{\"day\"" + ":" + "\"" + monitoredActivityDTOList.get(0).getDay().toString() + "\"" + "," + "\"message\"" + ":" + "\"" + prediction.getPrediction() + "\"" + "}";
                 simpMessagingTemplate.convertAndSend("/topic/app", toBeSent);
             }
+            item.put("prediction", prediction.getPrediction());
+            simpMessagingTemplate.convertAndSend("/topic/patient_activities", item.toString());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
