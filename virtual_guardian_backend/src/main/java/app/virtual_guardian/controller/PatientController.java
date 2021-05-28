@@ -8,9 +8,11 @@ import app.virtual_guardian.dto.builder.TreatmentBuilder;
 import app.virtual_guardian.dto.builder.UserBuilder;
 import app.virtual_guardian.entity.*;
 import app.virtual_guardian.service.*;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,15 +26,16 @@ public class PatientController {
     private final DoctorService doctorService;
     private final PatientService patientService;
     private final CaregiverService caregiverService;
-    private final TreatmentService treatmentService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
 
     @Autowired
-    public PatientController(UserService userService, DoctorService doctorService, PatientService patientService, CaregiverService caregiverService, TreatmentService treatmentService) {
+    public PatientController(UserService userService, DoctorService doctorService, PatientService patientService, CaregiverService caregiverService, SimpMessagingTemplate simpMessagingTemplate) {
         this.userService = userService;
         this.doctorService = doctorService;
         this.patientService = patientService;
         this.caregiverService = caregiverService;
-        this.treatmentService = treatmentService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     //---------------------------------CREATE--------------------------------- TODO
@@ -154,5 +157,31 @@ public class PatientController {
 
         List<TreatmentDTO> treatmentDTOS = TreatmentBuilder.toTreatmentDTOListFromTreatmentSet(treatments);
         return new ResponseEntity<>(treatmentDTOS, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = "/sendEmergency/{patientUserId}", method = RequestMethod.GET)
+    public ResponseEntity sendEmergency(@PathVariable("patientUserId") String userId) {
+        UserDTO userDTO = verifyPatientExistence(userId);
+        if(userDTO == null)
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        Patient patient = patientService.getPatient(userId);
+
+        String doctorUserId = patient.getDoctor().getUserId();
+
+        JSONObject item = new JSONObject();
+        item.put("userId", doctorUserId);
+        item.put("patientName", patient.getUser().getFirstname() + " " + patient.getUser().getLastname());
+        item.put("message", "emergency");
+
+        simpMessagingTemplate.convertAndSend("/topic/patient_emergency", item.toString());
+
+        if(patient.getCaregiver() != null){
+            String caregiverUserId = patient.getCaregiver().getUserId();
+            item.remove("userId");
+            item.put("userId", caregiverUserId);
+            simpMessagingTemplate.convertAndSend("/topic/patient_emergency", item.toString());
+        }
+
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

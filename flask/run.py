@@ -42,7 +42,6 @@ def train_model():
         cur.execute("SELECT * FROM labeled_days")
         labeledDays = cur.fetchall()
 
-
         features = {'data': [], 'labels': []}
         if user_input['features'] == "durationFrequencyRatio":
             features = getFeatures_durationFrequencyRatio(labeledDays)
@@ -67,6 +66,11 @@ def train_model():
         else: return jsonify({'score': '404'})
 
         score = model_in_training.score(x_test, y_test)
+        
+        print(features)
+        results = model_in_training.predict(features['data'])
+        print(results)
+
         print(score)
         return jsonify({'score': score})
     except:
@@ -128,16 +132,16 @@ def predict_days():
     try:
         user_input = request.json
         
-        global model_in_use;
-        global features_in_use;
+        global model_in_training;
+        global features_for_training;
 
         features = [] 
-        if features_in_use == 'durationFrequencyRatio':
+        if features_for_training == 'durationFrequencyRatio':
             for daysActivities in user_input:
                 features.append(getFeatures_durationFrequencyRatio_forDay(daysActivities['activities']))
         else: return jsonify({'predictions': 'feature type not found'})
 
-        results = model_in_use.predict(features)
+        results = model_in_training.predict(features)
 
         pretty_results = []
         for i in range(len(results)):
