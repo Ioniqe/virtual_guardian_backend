@@ -7,16 +7,23 @@ from utils import getFeatures_durationFrequencyRatio
 from utils import getFeatures_durationFrequencyRatio_forDay
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import svm
 from sklearn.naive_bayes import MultinomialNB
 
+from flask_mysqldb import MySQL
+
 app = Flask(__name__)
 CORS(app)
 
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'ioniqe'
+app.config['MYSQL_DB'] = 'virtual_angel'
+
+mysql = MySQL(app)
 
 model_in_training = pickle.load(open('anomaly_detection.pkl', 'rb'))
 features_for_training = 'durationFrequencyRatio'
@@ -31,9 +38,14 @@ def train_model():
 
         global features_for_training
 
+        cur = mysql.connection.cursor() 
+        cur.execute("SELECT * FROM labeled_days")
+        labeledDays = cur.fetchall()
+
+
         features = {'data': [], 'labels': []}
         if user_input['features'] == "durationFrequencyRatio":
-            features = getFeatures_durationFrequencyRatio()
+            features = getFeatures_durationFrequencyRatio(labeledDays)
             features_for_training = 'durationFrequencyRatio'
         elif user_input['features'] == "durationAndFrequency":
             print("durationAndFrequency");
@@ -50,8 +62,6 @@ def train_model():
             model_in_training = DecisionTreeClassifier(max_features = 1).fit(x_train, y_train)
         elif user_input['algorithm'] == "svm":
             model_in_training = svm.SVC(kernel='linear').fit(x_train, y_train) 
-        elif user_input['algorithm'] == "linearRegression":
-            model_in_training = LinearRegression().fit(x_train, y_train) 
         elif user_input['algorithm'] == "naiveBayes":
             model_in_training = MultinomialNB().fit(x_train, y_train)
         else: return jsonify({'score': '404'})

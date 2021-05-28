@@ -23,24 +23,21 @@ def update_array(day, activity, duration, data):
                     data[i]['list'][j]['frequency'] += 1
     return data
 
+
+
 file1 = open('activities.txt', 'r')
 Lines = file1.readlines()
 file1.close()
 
-file3 = open('days_type.txt', 'r')
-Lines_labels = file3.readlines()
-file3.close()
-
 FMT = '%H:%M:%S'
 
-def getFeatures_durationFrequencyRatio():
+def getFeatures_durationFrequencyRatio(labeledDays):
     activity_names = []
     processed = []
     activities = []
     data = []
     day = ''
     i = 0;
-
 
     for line in Lines:
         _list  = line.split()
@@ -91,9 +88,8 @@ def getFeatures_durationFrequencyRatio():
         i += 1    
 
     y = []
-    for line in Lines_labels:
-        _list  = line.split()
-        y.append(1 if 'anomalous' == _list[1] else 0)
+    for line in labeledDays:
+        y.append(1 if 'anomalous' == line[2] else 0)
 
     features = {'data': x, 'labels': y}
     return features
