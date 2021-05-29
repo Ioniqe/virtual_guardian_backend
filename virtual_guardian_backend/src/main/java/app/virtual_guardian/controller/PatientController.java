@@ -7,7 +7,10 @@ import app.virtual_guardian.dto.builder.PatientBuilder;
 import app.virtual_guardian.dto.builder.TreatmentBuilder;
 import app.virtual_guardian.dto.builder.UserBuilder;
 import app.virtual_guardian.entity.*;
-import app.virtual_guardian.service.*;
+import app.virtual_guardian.service.CaregiverService;
+import app.virtual_guardian.service.DoctorService;
+import app.virtual_guardian.service.PatientService;
+import app.virtual_guardian.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,12 +42,12 @@ public class PatientController {
     }
 
     //---------------------------------CREATE--------------------------------- TODO
-    @RequestMapping(value = "/patient/new/{doctorUserId}", method = { RequestMethod.GET, RequestMethod.POST })
+    @RequestMapping(value = "/patient/new/{doctorUserId}", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity savePatient(@RequestBody PatientDTO patientDTO, @PathVariable("doctorUserId") String doctorUserId) {
         UserDTO userDTO = UserBuilder.toUserDTOFromPatientDTO(patientDTO);
         User user = userService.getInsertedUser(userDTO);
         Doctor doctor = doctorService.getDoctorById(doctorUserId);
-        if(doctor == null){
+        if (doctor == null) {
             System.out.println("Doctor was not found when performing /patient/new/{doctorUserId}");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -54,7 +57,7 @@ public class PatientController {
 
     private UserDTO verifyPatientExistence(String userId) {
         UserDTO dto = userService.getUserDTOById(userId);
-        if(dto == null)
+        if (dto == null)
             return null;
         if (!dto.getType().equals("patient")) {
             System.out.println("Patient was not found.");
@@ -67,7 +70,7 @@ public class PatientController {
     @RequestMapping(value = "/patient/{userId}", method = RequestMethod.GET)
     public ResponseEntity<PatientDTO> readPatient(@PathVariable("userId") String userId) {
         UserDTO userDTO = verifyPatientExistence(userId);
-        if(userDTO == null)
+        if (userDTO == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         Patient patient = patientService.getPatient(userId);
         PatientDTO dto = PatientBuilder.toPatientDTOFromUserDTO(userDTO, patient);
@@ -87,7 +90,7 @@ public class PatientController {
     @RequestMapping(value = "/patient/update", method = RequestMethod.PUT)
     public ResponseEntity updatePatient(@RequestBody PatientDTO newPatientDTO) {
         UserDTO userDTO = verifyPatientExistence(newPatientDTO.getId());
-        if(userDTO == null)
+        if (userDTO == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         patientService.updatePatient(newPatientDTO);
         UserDTO newUserDTO = UserBuilder.toUserDTOFromPatientDTO(newPatientDTO);
@@ -102,22 +105,45 @@ public class PatientController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    //---------------------------------ASSIGN CAREGIVER--------------------------------- TODO
+    //---------------------------------ASSIGN CAREGIVER---------------------------------
     @RequestMapping(value = "/patient/set_caregiver/{patientUserId}/{caregiverUserId}", method = RequestMethod.POST)
+    //TODO test thoroughly
     public ResponseEntity setCaregiverToPatientByPeopleId(@PathVariable("patientUserId") String patientUserId, @PathVariable("caregiverUserId") String caregiverUserId) {
         UserDTO userDTO = verifyPatientExistence(patientUserId);
-        if(userDTO == null)
+        if (userDTO == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         Patient patient = patientService.getPatient(patientUserId);
-        Caregiver caregiver = caregiverService.getCaregiver(caregiverUserId);
+        Caregiver oldCaregiver = patient.getCaregiver();
 
-        if(caregiver == null){
-            System.out.println("Caregiver was not found when trying to assign it to patient");
+        if (caregiverUserId.equals("-")) {
+            if (oldCaregiver != null) {
+                oldCaregiver.getListOfPatients().remove(patient);
+                caregiverService.saveCaregiver(oldCaregiver);
+
+                patient.setCaregiver(null);
+                patientService.saveUpdatedPatient(patient);
+            }
+            return new ResponseEntity<>(HttpStatus.OK);
+
+        }
+
+        Caregiver newCaregiver = caregiverService.getCaregiver(caregiverUserId);
+        if(newCaregiver == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        patientService.setCaregiverToPatient(patient, caregiver);
+        if (oldCaregiver == null) {
+            patient.setCaregiver(newCaregiver);
+            patientService.saveUpdatedPatient(patient);
+        } else { // oldCaregiver != null && newCareg != null
+            oldCaregiver.getListOfPatients().remove(patient);
+            caregiverService.saveCaregiver(oldCaregiver);
+
+            patient.setCaregiver(newCaregiver);
+            patientService.saveUpdatedPatient(patient);
+        }
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -138,7 +164,8 @@ public class PatientController {
     }
 
     //----------------------------------GET LIST OF PATIENTS OF CAREGIVER---------------------------------- TODO
-    @RequestMapping(value = "/get_patients/caregiver/{userId}", method = RequestMethod.GET) //TODO verify that this works
+    @RequestMapping(value = "/get_patients/caregiver/{userId}", method = RequestMethod.GET)
+    //TODO verify that this works
     public ResponseEntity<List<PatientDTO>> getListOfPatientsOfCaregiver(@PathVariable("userId") String userId) {
         Caregiver caregiver = caregiverService.getCaregiver(userId);
 
@@ -149,7 +176,7 @@ public class PatientController {
     @RequestMapping(value = "/treatments/{userId}", method = RequestMethod.GET)
     public ResponseEntity<List<TreatmentDTO>> getTreatmentsOfPatient(@PathVariable("userId") String userId) {
         UserDTO userDTO = verifyPatientExistence(userId);
-        if(userDTO == null)
+        if (userDTO == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         Patient patient = patientService.getPatient(userId);
@@ -162,7 +189,7 @@ public class PatientController {
     @RequestMapping(value = "/sendEmergency/{patientUserId}", method = RequestMethod.GET)
     public ResponseEntity sendEmergency(@PathVariable("patientUserId") String userId) {
         UserDTO userDTO = verifyPatientExistence(userId);
-        if(userDTO == null)
+        if (userDTO == null)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         Patient patient = patientService.getPatient(userId);
 
@@ -175,7 +202,7 @@ public class PatientController {
 
         simpMessagingTemplate.convertAndSend("/topic/patient_emergency", item.toString());
 
-        if(patient.getCaregiver() != null){
+        if (patient.getCaregiver() != null) {
             String caregiverUserId = patient.getCaregiver().getUserId();
             item.remove("userId");
             item.put("userId", caregiverUserId);

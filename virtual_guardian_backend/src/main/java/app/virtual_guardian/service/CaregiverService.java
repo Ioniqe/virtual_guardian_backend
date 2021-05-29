@@ -7,6 +7,8 @@ import app.virtual_guardian.repository.CaregiverRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class CaregiverService {
 
@@ -28,5 +30,9 @@ public class CaregiverService {
 
     public void saveCaregiver(Caregiver caregiver){
         caregiverRepository.save(caregiver);
+    }
+
+    public List<Caregiver> getAll(){
+        return caregiverRepository.findAll();
     }
 }
