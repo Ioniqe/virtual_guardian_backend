@@ -43,6 +43,9 @@ public class Patient  implements Serializable{
     @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Treatment> listOfTreatments;
 
+    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Emergency> listOfEmergencies;
+
     @ManyToMany
     @JoinTable(
             name = "patient_disease",
@@ -54,7 +57,7 @@ public class Patient  implements Serializable{
     public Patient() {
     }
 
-    public Patient(User user, String address, Doctor doctor, Caregiver caregiver) {
+    public Patient(User user, String address, Doctor doctor, Caregiver caregiver, Set<Emergency> listOfEmergencies) {
         this.user = user;
         this.address = address;
         this.doctor = doctor;
@@ -63,6 +66,7 @@ public class Patient  implements Serializable{
         this.listOfDailyActivities = new HashSet<>();
         this.listOfTreatments = new HashSet<>();
         this.listOfDiseases = new HashSet<>();
+        this.listOfEmergencies = new HashSet<>();
     }
 
     public Patient(User user, String address, Doctor doctor) {
@@ -74,6 +78,7 @@ public class Patient  implements Serializable{
         this.listOfDailyActivities = new HashSet<>();
         this.listOfTreatments = new HashSet<>();
         this.listOfDiseases = new HashSet<>();
+        this.listOfEmergencies = new HashSet<>();
     }
 
     public String getUserId() {
@@ -146,5 +151,13 @@ public class Patient  implements Serializable{
 
     public void setListOfDiseases(Set<Disease> listOfDiseases) {
         this.listOfDiseases = listOfDiseases;
+    }
+
+    public Set<Emergency> getListOfEmergencies() {
+        return listOfEmergencies;
+    }
+
+    public void setListOfEmergencies(Set<Emergency> listOfEmergencies) {
+        this.listOfEmergencies = listOfEmergencies;
     }
 }
