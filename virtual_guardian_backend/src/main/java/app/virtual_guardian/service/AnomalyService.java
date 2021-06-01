@@ -23,4 +23,8 @@ public class AnomalyService {
     public List<Anomaly> getAll(){
         return anomalyRepository.findAll();
     }
+
+    public void deleteAll(){
+        anomalyRepository.deleteAll();
+    }
 }
