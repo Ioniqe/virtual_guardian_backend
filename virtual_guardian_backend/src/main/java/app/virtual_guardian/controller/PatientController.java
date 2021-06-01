@@ -7,10 +7,7 @@ import app.virtual_guardian.dto.builder.PatientBuilder;
 import app.virtual_guardian.dto.builder.TreatmentBuilder;
 import app.virtual_guardian.dto.builder.UserBuilder;
 import app.virtual_guardian.entity.*;
-import app.virtual_guardian.service.CaregiverService;
-import app.virtual_guardian.service.DoctorService;
-import app.virtual_guardian.service.PatientService;
-import app.virtual_guardian.service.UserService;
+import app.virtual_guardian.service.*;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -30,15 +29,17 @@ public class PatientController {
     private final PatientService patientService;
     private final CaregiverService caregiverService;
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final EmergencyService emergencyService;
 
 
     @Autowired
-    public PatientController(UserService userService, DoctorService doctorService, PatientService patientService, CaregiverService caregiverService, SimpMessagingTemplate simpMessagingTemplate) {
+    public PatientController(UserService userService, DoctorService doctorService, PatientService patientService, CaregiverService caregiverService, SimpMessagingTemplate simpMessagingTemplate, EmergencyService emergencyService) {
         this.userService = userService;
         this.doctorService = doctorService;
         this.patientService = patientService;
         this.caregiverService = caregiverService;
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.emergencyService = emergencyService;
     }
 
     //---------------------------------CREATE--------------------------------- TODO
@@ -207,6 +208,28 @@ public class PatientController {
             item.remove("userId");
             item.put("userId", caregiverUserId);
             simpMessagingTemplate.convertAndSend("/topic/patient_emergency", item.toString());
+        }
+
+        //save emergency
+        Date date = new Date();
+        long time = date.getTime();
+        Timestamp ts = new Timestamp(time);
+        Emergency emergency = new Emergency(ts, patient);
+        emergencyService.saveEmergency(emergency);
+
+        //send emergency object
+        item = new JSONObject();
+        item.put("id", emergency.getId());
+        item.put("patientName", patient.getUser().getFirstname()+ " " + patient.getUser().getLastname());
+        item.put("date", emergency.getDate());
+        item.put("userId", patient.getDoctor().getUserId());
+        simpMessagingTemplate.convertAndSend("/topic/emergency_object", item.toString());
+
+        if(emergency.getPatient().getCaregiver() != null){
+            String caregiverUserId = patient.getCaregiver().getUserId();
+            item.remove("userId");
+            item.put("userId", caregiverUserId);
+            simpMessagingTemplate.convertAndSend("/topic/emergency_object", item.toString());
         }
 
         return new ResponseEntity(HttpStatus.OK);

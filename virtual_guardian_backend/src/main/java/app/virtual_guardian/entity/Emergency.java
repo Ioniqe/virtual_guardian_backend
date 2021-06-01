@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 @Entity(name="emergencies")
 @Table(name = "emergencies")
@@ -15,7 +16,7 @@ public class Emergency implements Serializable {
     private Integer id;
 
     @Column(name = "date", nullable = false)
-    private Date date;
+    private Timestamp date;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
@@ -25,7 +26,7 @@ public class Emergency implements Serializable {
     public Emergency() {
     }
 
-    public Emergency(Date date, Patient patient) {
+    public Emergency(Timestamp date, Patient patient) {
         this.date = date;
         this.patient = patient;
     }
@@ -38,11 +39,11 @@ public class Emergency implements Serializable {
         this.id = id;
     }
 
-    public Date getDate() {
+    public Timestamp getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Timestamp date) {
         this.date = date;
     }
 

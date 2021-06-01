@@ -1,7 +1,9 @@
 package app.virtual_guardian.service;
 
+import app.virtual_guardian.dto.AnomalyDTO;
 import app.virtual_guardian.dto.MonitoredActivityDTO;
 import app.virtual_guardian.dto.Prediction;
+import app.virtual_guardian.dto.builder.AnomalyBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,16 +17,19 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
+import java.sql.Date;
 import java.util.List;
 
 @Component
 public class ConsumerService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
+    private final AnomalyService anomalyService;
 
     @Autowired
-    public ConsumerService(SimpMessagingTemplate simpMessagingTemplate) {
+    public ConsumerService(SimpMessagingTemplate simpMessagingTemplate, AnomalyService anomalyService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
+        this.anomalyService = anomalyService;
     }
 
     @RabbitListener(queues = "monitored_data-queue")
@@ -54,9 +59,27 @@ public class ConsumerService {
         try {
             Prediction prediction = mapper.readValue(result, Prediction.class);
             if (prediction.getPrediction().equals("anomalous")) {
-                String toBeSent = "{\"day\"" + ":" + "\"" + monitoredActivityDTOList.get(0).getDay().toString() + "\"" + "," + "\"message\"" + ":" + "\"" + prediction.getPrediction() + "\"" + "}";
+                Date sqlCurrDay = monitoredActivityDTOList.get(0).getDay();
+                String toBeSent = "{\"day\"" + ":" + "\"" + sqlCurrDay.toString() + "\"" + "," + "\"message\"" + ":" + "\"" + prediction.getPrediction() + "\"" + "}";
                 simpMessagingTemplate.convertAndSend("/topic/app", toBeSent);
+
+                //save Anomaly
+                AnomalyDTO anomalyDTO = new AnomalyDTO();
+//                Calendar calendar = Calendar.getInstance();
+//                java.util.Date currentDate = calendar.getTime();
+//                java.sql.Date currDate = new java.sql.Date(currentDate.getTime());
+                anomalyDTO.setDate(sqlCurrDay);
+
+                // TODO maybe don't save the anomalies in the db since everytime i start monitored_data
+                // TODO i start from the first date from the list
+//                anomalyService.saveAnomaly(AnomalyBuilder.toEntity(anomalyDTO));
+
+                JSONObject item2 = new JSONObject();
+                item2.put("day", sqlCurrDay.toString());
+                item2.put("activities", monitoredActivityDTOList);
+                simpMessagingTemplate.convertAndSend("/topic/anomaly_object", item2.toString());
             }
+
             item.put("prediction", prediction.getPrediction());
             simpMessagingTemplate.convertAndSend("/topic/patient_activities", item.toString());
         } catch (JsonProcessingException e) {

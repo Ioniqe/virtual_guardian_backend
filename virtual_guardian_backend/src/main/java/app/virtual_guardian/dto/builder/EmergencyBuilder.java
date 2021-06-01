@@ -10,6 +10,6 @@ public class EmergencyBuilder {
     }
 
     public static EmergencyDTO toDTO(Emergency emergency){
-        return new EmergencyDTO(emergency.getId(), emergency.getDate());
+        return new EmergencyDTO(emergency.getId(), emergency.getDate(), emergency.getPatient().getUser().getFirstname() + " " + emergency.getPatient().getUser().getLastname());
     }
 }

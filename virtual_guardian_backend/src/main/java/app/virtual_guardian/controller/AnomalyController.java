@@ -2,8 +2,6 @@ package app.virtual_guardian.controller;
 
 import app.virtual_guardian.dto.AnomalyDTO;
 import app.virtual_guardian.dto.builder.AnomalyBuilder;
-import app.virtual_guardian.entity.Anomaly;
-import app.virtual_guardian.entity.Emergency;
 import app.virtual_guardian.service.AnomalyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
