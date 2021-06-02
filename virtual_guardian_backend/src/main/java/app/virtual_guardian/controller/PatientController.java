@@ -16,7 +16,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -139,40 +138,6 @@ public class PatientController {
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-//    private ResponseEntity<List<PatientDTO>> getListResponseEntity(boolean b, Set<Patient> listOfPatients) {
-//        if (b)
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//
-//        List<PatientDTO> patients = PatientBuilder.toPatientDTOListFromPatientSet(listOfPatients);
-//        return new ResponseEntity<>(patients, HttpStatus.OK);
-//    }
-//
-//    //----------------------------------GET LIST OF PATIENTS OF DOCTOR----------------------------------
-//    @RequestMapping(value = "/get_patients/doctor/{userId}", method = RequestMethod.GET) //TODO verify that this works
-//    public ResponseEntity<List<PatientDTO>> getListOfPatientsOfDoctor(@PathVariable("userId") String userId) {
-//        Doctor doctor = doctorService.getDoctorById(userId);
-//
-//        return getListResponseEntity(doctor == null, doctor.getListOfPatients());
-//    }
-//
-//    //----------------------------------GET LIST OF PATIENTS OF CAREGIVER---------------------------------- TODO
-//    @RequestMapping(value = "/get_patients/caregiver/{userId}", method = RequestMethod.GET)
-//    //TODO verify that this works
-//    public ResponseEntity<List<PatientDTO>> getListOfPatientsOfCaregiver(@PathVariable("userId") String userId) {
-//        Caregiver caregiver = caregiverService.getCaregiver(userId);
-//
-//        return getListResponseEntity(caregiver == null, caregiver.getListOfPatients());
-//    }
-
-//    //-----------------------READ ALL PATIENTS OF DOCTOR-------------------------
-//    @RequestMapping(value = "/patient/all/{doctorId}", method = RequestMethod.GET)
-//    public ResponseEntity<List<PatientDTO>> readAllPatients(@PathVariable("doctorId") String doctorId) {
-//        Doctor doctor = doctorService.getDoctorById(doctorId);
-//        Set<Patient> patientsOfDoctor = doctor.getListOfPatients();
-//        List<PatientDTO> patientsDTO = PatientBuilder.toPatientDTOListFromPatientSet(patientsOfDoctor);
-//        return new ResponseEntity<>(patientsDTO, HttpStatus.OK);
-//    }
 
     //-----------------------READ ALL PATIENTS OF DOCTOR/CAREGIVER-------------------------
     @RequestMapping(value = "/patient/all/{userId}", method = RequestMethod.GET)

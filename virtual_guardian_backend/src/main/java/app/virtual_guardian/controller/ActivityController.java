@@ -12,7 +12,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
 import java.sql.Time;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -27,24 +26,6 @@ public class ActivityController {
     public ActivityController(ActivityService activityService) {
         this.activityService = activityService;
     }
-
-    //TODO
-
-//    //----------------------------------READ----------------------------------
-//    @RequestMapping(value = "/activities/{userId}/{date}", method = RequestMethod.GET)
-//    public ResponseEntity<List<ActivityDTO>> readActivitiesForTheDay(@PathVariable("userId") String userId, @PathVariable("date") String date) { //TODO verify
-//        List<Activity> activitiesForTheDay =  activityService.getActivitiesForTheDay(userId, date);
-//        List<ActivityDTO> activitiesForTheDayDTO = ActivityBuilder.toActivityDTOsList(activitiesForTheDay);
-//        return new ResponseEntity<>(activitiesForTheDayDTO, HttpStatus.OK);
-//    }
-//
-//    //----------------------------------ADD----------------------------------
-//    @RequestMapping(value = "/activity/add/{userId}/{date}", method = RequestMethod.POST)
-//    public ResponseEntity addActivity(@PathVariable("userId") String userId, @PathVariable("date") String date) {
-//        List<Activity> activitiesForTheDay =  activityService.getActivitiesForTheDay(userId, date);
-//        List<ActivityDTO> activitiesForTheDayDTO = ActivityBuilder.toActivityDTOsList(activitiesForTheDay);
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
 
     //----------------------------------READ ACTIVITIES FROM FILE AND SEND----------------------------------
     @RequestMapping(value = "/activities/readAll", method = RequestMethod.GET)

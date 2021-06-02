@@ -27,7 +27,6 @@ public class DoctorService {
     private Optional<Doctor> verifyDoctorExistence(String id) {
         Optional<Doctor> doctorOptional = doctorRepository.findById(id);
         if (!doctorOptional.isPresent()) {
-//            System.out.println("Doctor with id {} was not found in the db" + id);
             return Optional.empty();
         }
         return doctorOptional;
