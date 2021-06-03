@@ -31,7 +31,13 @@ features_for_training = 'durationFrequencyRatio'
 model_in_use = pickle.load(open('anomaly_detection.pkl', 'rb'))
 features_in_use = 'durationFrequencyRatio'
 
-@app.route('/train_model', methods=['POST']) #TODO ia label-urile din DB
+# curr = mysql.connection.cursor() 
+# curr.execute("SELECT * FROM ml_variables where id = 1")
+# ml_variables = curr.fetchall()
+
+# print(ml_variables)
+
+@app.route('/train_model', methods=['POST'])
 def train_model():
     try:
         user_input = request.json
@@ -67,7 +73,6 @@ def train_model():
 
         score = model_in_training.score(x_test, y_test)
         
-        print(features)
         results = model_in_training.predict(features['data'])
         print(results)
 
@@ -170,3 +175,12 @@ def predict_disease():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+    # cur = mysql.connection.cursor() 
+    # cur.execute("SELECT * FROM ml_variables where id = 1")
+    # ml_variables = cur.fetchall()
+
+    # print(ml_variables)
+
+

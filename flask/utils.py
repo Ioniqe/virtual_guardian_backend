@@ -1,6 +1,4 @@
 from datetime import datetime
-import numpy as np
-import pandas as pd
 
 def get_list_of_day(key, activities):
     for act in activities:

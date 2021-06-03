@@ -65,9 +65,6 @@ public class ConsumerService {
 
                 //save Anomaly
                 AnomalyDTO anomalyDTO = new AnomalyDTO();
-//                Calendar calendar = Calendar.getInstance();
-//                java.util.Date currentDate = calendar.getTime();
-//                java.sql.Date currDate = new java.sql.Date(currentDate.getTime());
                 anomalyDTO.setDate(sqlCurrDay);
 
                 // TODO maybe don't save the anomalies in the db since everytime i start monitored_data
