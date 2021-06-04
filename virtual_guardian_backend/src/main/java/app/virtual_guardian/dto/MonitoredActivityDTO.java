@@ -7,7 +7,7 @@ public class MonitoredActivityDTO {
     private Date day;
     private Time startTime;
     private Time endTime;
-    private String Activity;
+    private String activity;
 
     public MonitoredActivityDTO() {
     }
@@ -16,7 +16,7 @@ public class MonitoredActivityDTO {
         this.day = day;
         this.startTime = startTime;
         this.endTime = endTime;
-        Activity = activity;
+        this.activity = activity;
     }
 
     public Date getDay() {
@@ -44,11 +44,11 @@ public class MonitoredActivityDTO {
     }
 
     public String getActivity() {
-        return Activity;
+        return activity;
     }
 
     public void setActivity(String activity) {
-        Activity = activity;
+        this.activity = activity;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class MonitoredActivityDTO {
                 "day=" + day +
                 ", startTime=" + startTime +
                 ", endTime=" + endTime +
-                ", Activity='" + Activity + '\'' +
+                ", Activity='" + activity + '\'' +
                 '}';
     }
 }

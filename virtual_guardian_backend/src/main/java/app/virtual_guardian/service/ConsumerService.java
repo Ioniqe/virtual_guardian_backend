@@ -1,9 +1,10 @@
 package app.virtual_guardian.service;
 
-import app.virtual_guardian.dto.AnomalyDTO;
 import app.virtual_guardian.dto.MonitoredActivityDTO;
 import app.virtual_guardian.dto.Prediction;
-import app.virtual_guardian.dto.builder.AnomalyBuilder;
+import app.virtual_guardian.dto.builder.ActivityBuilder;
+import app.virtual_guardian.entity.Activity;
+import app.virtual_guardian.entity.Day;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,17 +20,18 @@ import org.springframework.web.client.RestTemplate;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class ConsumerService {
 
     private final SimpMessagingTemplate simpMessagingTemplate;
-    private final AnomalyService anomalyService;
+    private final DayService dayService;
 
     @Autowired
-    public ConsumerService(SimpMessagingTemplate simpMessagingTemplate, AnomalyService anomalyService) {
+    public ConsumerService(SimpMessagingTemplate simpMessagingTemplate, DayService dayService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.anomalyService = anomalyService;
+        this.dayService = dayService;
     }
 
     @RabbitListener(queues = "monitored_data-queue")
@@ -58,18 +60,10 @@ public class ConsumerService {
         ObjectMapper mapper = new ObjectMapper();
         try {
             Prediction prediction = mapper.readValue(result, Prediction.class);
+            Date sqlCurrDay = monitoredActivityDTOList.get(0).getDay();
             if (prediction.getPrediction().equals("anomalous")) {
-                Date sqlCurrDay = monitoredActivityDTOList.get(0).getDay();
                 String toBeSent = "{\"day\"" + ":" + "\"" + sqlCurrDay.toString() + "\"" + "," + "\"message\"" + ":" + "\"" + prediction.getPrediction() + "\"" + "}";
                 simpMessagingTemplate.convertAndSend("/topic/app", toBeSent);
-
-                //save Anomaly
-                AnomalyDTO anomalyDTO = new AnomalyDTO();
-                anomalyDTO.setDate(sqlCurrDay);
-
-                // TODO maybe don't save the anomalies in the db since everytime i start monitored_data
-                // TODO i start from the first date from the list
-//                anomalyService.saveAnomaly(AnomalyBuilder.toEntity(anomalyDTO));
 
                 JSONObject item2 = new JSONObject();
                 item2.put("day", sqlCurrDay.toString());
@@ -79,6 +73,13 @@ public class ConsumerService {
 
             item.put("prediction", prediction.getPrediction());
             simpMessagingTemplate.convertAndSend("/topic/patient_activities", item.toString());
+
+            //create day with activities and save in DB
+            Day day = new Day(sqlCurrDay, prediction.getPrediction());
+            Set<Activity> activitySet = ActivityBuilder.toActivitySet(monitoredActivityDTOList, day);
+            day.setListOfActivities(activitySet);
+            dayService.saveDay(day);
+
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
