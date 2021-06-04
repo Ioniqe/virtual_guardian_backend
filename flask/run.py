@@ -93,6 +93,21 @@ def set_default():
 
     return '200'
 
+@app.route('/get_ml_variables', methods=['GET'])
+def get_ml_variables():
+    global model_in_training;
+    global features_for_training;
+    global model_in_use;
+    global features_in_use;
+
+    cur = mysql.connection.cursor() 
+    cur.execute("SELECT * FROM ml_variables where id = 1")
+    ml_variables = cur.fetchall()
+
+    print(ml_variables[0])
+
+    return '200'
+
 # TODO maybe save in database?
 
 @app.route('/test', methods=['GET']) # this is to test if the global variable solution works
@@ -177,10 +192,6 @@ if __name__ == '__main__':
     app.run(debug=True)
 
 
-    # cur = mysql.connection.cursor() 
-    # cur.execute("SELECT * FROM ml_variables where id = 1")
-    # ml_variables = cur.fetchall()
 
-    # print(ml_variables)
 
 

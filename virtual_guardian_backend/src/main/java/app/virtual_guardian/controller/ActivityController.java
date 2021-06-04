@@ -1,7 +1,6 @@
 package app.virtual_guardian.controller;
 
 import app.virtual_guardian.dto.MonitoredActivityDTO;
-import app.virtual_guardian.service.ActivityService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,13 +18,6 @@ import java.util.stream.Stream;
 @RestController
 @CrossOrigin(origins = "*")
 public class ActivityController {
-
-    private final ActivityService activityService;
-
-    @Autowired
-    public ActivityController(ActivityService activityService) {
-        this.activityService = activityService;
-    }
 
     //----------------------------------READ ACTIVITIES FROM FILE AND SEND----------------------------------
     @RequestMapping(value = "/activities/readAll", method = RequestMethod.GET)

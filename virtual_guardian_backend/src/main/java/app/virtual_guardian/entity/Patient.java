@@ -35,12 +35,6 @@ public class Patient  implements Serializable{
     private Caregiver caregiver;
 
     @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Appointment> listOfAppointments;
-
-    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Activity> listOfDailyActivities;
-
-    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Treatment> listOfTreatments;
 
     @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
@@ -57,13 +51,11 @@ public class Patient  implements Serializable{
     public Patient() {
     }
 
-    public Patient(User user, String address, Doctor doctor, Caregiver caregiver, Set<Emergency> listOfEmergencies) {
+    public Patient(User user, String address, Doctor doctor, Caregiver caregiver) {
         this.user = user;
         this.address = address;
         this.doctor = doctor;
         this.caregiver = caregiver;
-        this.listOfAppointments = new HashSet<>();
-        this.listOfDailyActivities = new HashSet<>();
         this.listOfTreatments = new HashSet<>();
         this.listOfDiseases = new HashSet<>();
         this.listOfEmergencies = new HashSet<>();
@@ -74,8 +66,6 @@ public class Patient  implements Serializable{
         this.address = address;
         this.doctor = doctor;
         this.userId = user.getId();
-        this.listOfAppointments = new HashSet<>();
-        this.listOfDailyActivities = new HashSet<>();
         this.listOfTreatments = new HashSet<>();
         this.listOfDiseases = new HashSet<>();
         this.listOfEmergencies = new HashSet<>();
@@ -119,22 +109,6 @@ public class Patient  implements Serializable{
 
     public void setCaregiver(Caregiver caregiver) {
         this.caregiver = caregiver;
-    }
-
-    public Set<Appointment> getListOfAppointments() {
-        return listOfAppointments;
-    }
-
-    public void setListOfAppointments(Set<Appointment> listOfAppointments) {
-        this.listOfAppointments = listOfAppointments;
-    }
-
-    public Set<Activity> getListOfDailyActivities() {
-        return listOfDailyActivities;
-    }
-
-    public void setListOfDailyActivities(Set<Activity> listOfDailyActivities) {
-        this.listOfDailyActivities = listOfDailyActivities;
     }
 
     public Set<Treatment> getListOfTreatments() {
