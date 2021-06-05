@@ -71,14 +71,19 @@ public class ConsumerService {
                 simpMessagingTemplate.convertAndSend("/topic/anomaly_object", item2.toString());
             }
 
-            item.put("prediction", prediction.getPrediction());
-            simpMessagingTemplate.convertAndSend("/topic/patient_activities", item.toString());
-
             //create day with activities and save in DB
             Day day = new Day(sqlCurrDay, prediction.getPrediction());
             Set<Activity> activitySet = ActivityBuilder.toActivitySet(monitoredActivityDTOList, day);
             day.setListOfActivities(activitySet);
-            dayService.saveDay(day);
+            day = dayService.saveDay(day);
+
+
+            item.remove("arr");
+            item.put("id", day.getId());
+            item.put("result", prediction.getPrediction());
+            item.put("day", day.getDay());
+            item.put("activities", monitoredActivityDTOList);
+            simpMessagingTemplate.convertAndSend("/topic/patient_activities", item.toString());
 
         } catch (JsonProcessingException e) {
             e.printStackTrace();

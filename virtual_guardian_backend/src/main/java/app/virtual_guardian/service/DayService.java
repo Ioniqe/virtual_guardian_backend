@@ -20,8 +20,8 @@ public class DayService {
         dayRepository.deleteAll();
     }
 
-    public void saveDay(Day day) {
-        dayRepository.save(day);
+    public Day saveDay(Day day) {
+        return dayRepository.save(day);
     }
 
     public List<Day> getAll() {
