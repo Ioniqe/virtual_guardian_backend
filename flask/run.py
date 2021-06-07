@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 import pickle 
 from flask_cors import CORS
 
-from utils import getFeatures_durationFrequencyRatio
+from utils import getFeatures_duration, getFeatures_durationFrequencyRatio, getFeatures_duration_forDay, getFeatures_frequency, getFeatures_frequency_forDay
 from utils import getFeatures_durationFrequencyRatio_forDay
 
 from sklearn.linear_model import LogisticRegression
@@ -48,12 +48,21 @@ def train_model():
         cur.execute("SELECT * FROM labeled_days")
         labeledDays = cur.fetchall()
 
+        print(labeledDays)
+
         features = {'data': [], 'labels': []}
         if user_input['features'] == "durationFrequencyRatio":
             features = getFeatures_durationFrequencyRatio(labeledDays)
             features_for_training = 'durationFrequencyRatio'
+        elif user_input['features'] == 'duration':
+            print('ddd')
+            features = getFeatures_duration(labeledDays) #change for more days
+            features_for_training = 'duration'
+        elif user_input['features'] == 'frequency':
+            print('fff')
+            features = getFeatures_frequency(labeledDays) #change for more days
+            features_for_training = 'frequency'
         elif user_input['features'] == "durationAndFrequency":
-            print("durationAndFrequency");
             features_for_training = 'durationAndFrequency'
 
         x_train, x_test, y_train, y_test = train_test_split(features['data'], features['labels'], test_size=0.20, random_state=0)
@@ -110,16 +119,6 @@ def get_ml_variables():
 
 # TODO maybe save in database?
 
-@app.route('/test', methods=['GET']) # this is to test if the global variable solution works
-def test():
-    global model_in_training
-    global features_for_training
-
-    features = getFeatures_durationFrequencyRatio()
-    x_train, x_test, y_train, y_test = train_test_split(features['data'], features['labels'], test_size=0.20, random_state=0)
-    score = model_in_training.score(x_test, y_test)
-    return jsonify({'score': score})
-
 @app.route('/predict/day', methods=['POST'])
 def predict_day():  # only get as input the day, not the features
     try:
@@ -134,6 +133,12 @@ def predict_day():  # only get as input the day, not the features
         features = []
         if features_in_use == 'durationFrequencyRatio':
             features = getFeatures_durationFrequencyRatio_forDay(user_input['arr'])
+        elif features_in_use == 'duration':
+            print('ddd')
+            features = getFeatures_duration_forDay(user_input['arr'])
+        elif features_in_use == 'frequency':
+            print('fff')
+            features = getFeatures_frequency_forDay(user_input['arr'])
         else: return jsonify({'prediction': 'feature type not found'})
 
         prediction = 'normal' if model_in_use.predict([features])[0] == 0 else 'anomalous'  #trebe [0]
@@ -152,6 +157,9 @@ def predict_days():
     try:
         user_input = request.json
         
+        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+        print(user_input)
+
         global model_in_training;
         global features_for_training;
 
@@ -159,6 +167,12 @@ def predict_days():
         if features_for_training == 'durationFrequencyRatio':
             for daysActivities in user_input:
                 features.append(getFeatures_durationFrequencyRatio_forDay(daysActivities['activities']))
+        elif features_for_training == 'duration':
+            for daysActivities in user_input:
+                features.append(getFeatures_duration_forDay(daysActivities['activities']))
+        elif features_for_training == 'frequency':
+            for daysActivities in user_input:
+                features.append(getFeatures_frequency_forDay(daysActivities['activities']))
         else: return jsonify({'predictions': 'feature type not found'})
 
         results = model_in_training.predict(features)

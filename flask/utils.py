@@ -21,7 +21,43 @@ def update_array(day, activity, duration, data):
                     data[i]['list'][j]['frequency'] += 1
     return data
 
+def get_processed_days_array():
+    activity_names = []
+    activities = []
+    data = []
+    day = ''
+    i = 0;
 
+    for line in Lines:
+        _list  = line.split()
+
+        if (_list[3] in activity_names) == False:
+            activity_names.append(_list[3])
+
+        if day == _list[0] and i != 0: 
+            get_list_of_day(day, activities).append({'activity': _list[3], 'start_time': _list[1], 'end_time':_list[2]})
+        else:
+            day = _list[0]
+            activities.append({'day':day, 'list':[{'activity': _list[3], 'start_time': _list[1], 'end_time':_list[2]}]})
+        i += 1
+
+    #-------------------------------------------------
+
+    for activity in activities:
+        day = activity['day']
+        data.append({'day':day, 'list':[]})
+        _list = activity['list']
+        for item in _list:
+            current_activity = item['activity']
+
+            duration = datetime.strptime(item['end_time'], FMT) - datetime.strptime(item['start_time'], FMT)
+            list_of_day = get_list_of_day(day, data)
+            if verify_activity_existence(current_activity, list_of_day): #it already exists
+                data = update_array(day, current_activity, duration.seconds, data)
+            else:
+                get_list_of_day(day, data).append({'activity': current_activity, 'duration':duration.seconds, 'frequency': 1})
+
+    return {'activity_names': activity_names, 'data':data}
 
 file1 = open('activities.txt', 'r')
 Lines = file1.readlines()
@@ -73,6 +109,11 @@ def getFeatures_durationFrequencyRatio(labeledDays):
     activity_names = sorted(activity_names)
     buckets = [float(0)] * len(activity_names)
 
+    print('=================')
+    print(activity_names)
+    print('=================')
+
+
     x = []
     for p in processed:
         p.extend(buckets)
@@ -109,3 +150,89 @@ def getFeatures_durationFrequencyRatio_forDay(user_input):
         if frequencyOfActivities[i] != 0:
             computedArray[i] = round(durationOfActivities[i] / frequencyOfActivities[i], 2) 
     return computedArray
+
+def getFeatures_duration_forDay(user_input):
+    activityArray = ["Breakfast", "Dinner", "Grooming", "Leaving", "Lunch", "Showering", "Sleeping", "Snack", "Spare_Time/TV", "Toileting"]
+    durationOfActivities = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    for activity in user_input:
+        duration = datetime.strptime(activity['endTime'], FMT) - datetime.strptime(activity['startTime'], FMT)
+        durationOfActivities[activityArray.index(activity['activity'])] += duration.seconds
+    return durationOfActivities
+
+def getFeatures_frequency_forDay(user_input):
+    activityArray = ["Breakfast", "Dinner", "Grooming", "Leaving", "Lunch", "Showering", "Sleeping", "Snack", "Spare_Time/TV", "Toileting"]
+    frequencyOfActivities = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    for activity in user_input:
+        frequencyOfActivities[activityArray.index(activity['activity'])] += 1
+    return frequencyOfActivities
+
+def getFeatures_duration(labeledDays):
+    x = []
+
+
+    needed_data = get_processed_days_array()
+
+    #-------------------------------------------------
+    activity_names = sorted(needed_data['activity_names'])
+
+    data = needed_data['data']
+
+    x = []
+    i = 0
+    while i < len(data):
+        x.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        i += 1
+
+    i = 0;
+    for day in data:
+        for item in day['list']:
+            x[i][activity_names.index(item['activity'])] = item['duration']  
+        i += 1   
+
+    y = []
+    for line in labeledDays:
+        y.append(1 if 'anomalous' == line[2] else 0)
+
+    print('duration')
+    print(x)
+
+    features = {'data': x, 'labels': y}
+    return features
+
+def getFeatures_frequency(labeledDays):
+    x = []
+
+    needed_data = get_processed_days_array()
+    activity_names = sorted(needed_data['activity_names'])
+    data = needed_data['data']
+
+    print('===========activity_names===========')
+    print(activity_names)
+    print('===========data===========')
+    # print(data)
+    print('1========================')
+
+    x = []
+    i = 0
+    while i < len(data):
+        x.append([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        i += 1
+
+
+    i = 0;
+    for day in data:
+        for item in day['list']:
+            x[i][activity_names.index(item['activity'])] = item['frequency']
+        i += 1  
+
+    y = []
+    for line in labeledDays:
+        y.append(1 if 'anomalous' == line[2] else 0)
+
+    print('frequency')
+    print(x)
+
+    features = {'data': x, 'labels': y}
+    return features
