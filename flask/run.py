@@ -157,9 +157,6 @@ def predict_days():
     try:
         user_input = request.json
         
-        print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-        print(user_input)
-
         global model_in_training;
         global features_for_training;
 
