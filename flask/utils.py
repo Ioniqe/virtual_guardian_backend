@@ -1,4 +1,5 @@
 from datetime import datetime
+from sklearn.model_selection import train_test_split
 
 def get_list_of_day(key, activities):
     for act in activities:
@@ -20,6 +21,22 @@ def update_array(day, activity, duration, data):
                     data[i]['list'][j]['duration'] += duration
                     data[i]['list'][j]['frequency'] += 1
     return data
+
+def get_features_from_days(user_input_features, labeledDays):
+    features = {'data': [], 'labels': []}
+    if user_input_features == "durationFrequencyRatio":
+        features = getFeatures_durationFrequencyRatio(labeledDays)
+        features_for_training = 'durationFrequencyRatio'
+    elif user_input_features == 'duration':
+        features = getFeatures_duration(labeledDays)
+        features_for_training = 'duration'
+    elif user_input_features == 'frequency':
+        features = getFeatures_frequency(labeledDays)
+        features_for_training = 'frequency'
+
+    x_train, x_test, y_train, y_test = train_test_split(features['data'], features['labels'], test_size=0.20, random_state=0)
+    
+    return {'x_train': x_train, 'x_test': x_test, 'y_train': y_train, 'y_test': y_test, 'features_for_training': features_for_training}
 
 def get_processed_days_array():
     activity_names = []
