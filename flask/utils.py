@@ -109,11 +109,6 @@ def getFeatures_durationFrequencyRatio(labeledDays):
     activity_names = sorted(activity_names)
     buckets = [float(0)] * len(activity_names)
 
-    print('=================')
-    print(activity_names)
-    print('=================')
-
-
     x = []
     for p in processed:
         p.extend(buckets)
@@ -132,9 +127,6 @@ def getFeatures_durationFrequencyRatio(labeledDays):
 
     features = {'data': x, 'labels': y}
     return features
-
-
-# TODO add more features 
 
 def getFeatures_durationFrequencyRatio_forDay(user_input):
     activityArray = ["Breakfast", "Dinner", "Grooming", "Leaving", "Lunch", "Showering", "Sleeping", "Snack", "Spare_Time/TV", "Toileting"]
@@ -207,12 +199,6 @@ def getFeatures_frequency(labeledDays):
     needed_data = get_processed_days_array()
     activity_names = sorted(needed_data['activity_names'])
     data = needed_data['data']
-
-    print('===========activity_names===========')
-    print(activity_names)
-    print('===========data===========')
-    # print(data)
-    print('1========================')
 
     x = []
     i = 0

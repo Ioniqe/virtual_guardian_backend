@@ -134,10 +134,8 @@ def predict_day():  # only get as input the day, not the features
         if features_in_use == 'durationFrequencyRatio':
             features = getFeatures_durationFrequencyRatio_forDay(user_input['arr'])
         elif features_in_use == 'duration':
-            print('ddd')
             features = getFeatures_duration_forDay(user_input['arr'])
         elif features_in_use == 'frequency':
-            print('fff')
             features = getFeatures_frequency_forDay(user_input['arr'])
         else: return jsonify({'prediction': 'feature type not found'})
 
