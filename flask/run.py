@@ -31,12 +31,6 @@ features_for_training = 'durationFrequencyRatio'
 model_in_use = pickle.load(open('anomaly_detection.pkl', 'rb'))
 features_in_use = 'durationFrequencyRatio'
 
-# curr = mysql.connection.cursor() 
-# curr.execute("SELECT * FROM ml_variables where id = 1")
-# ml_variables = curr.fetchall()
-
-# print(ml_variables)
-
 @app.route('/train_model', methods=['POST'])
 def train_model():
     try:
@@ -56,11 +50,11 @@ def train_model():
             features_for_training = 'durationFrequencyRatio'
         elif user_input['features'] == 'duration':
             print('ddd')
-            features = getFeatures_duration(labeledDays) #change for more days
+            features = getFeatures_duration(labeledDays)
             features_for_training = 'duration'
         elif user_input['features'] == 'frequency':
             print('fff')
-            features = getFeatures_frequency(labeledDays) #change for more days
+            features = getFeatures_frequency(labeledDays)
             features_for_training = 'frequency'
         elif user_input['features'] == "durationAndFrequency":
             features_for_training = 'durationAndFrequency'
@@ -120,7 +114,7 @@ def get_ml_variables():
 # TODO maybe save in database?
 
 @app.route('/predict/day', methods=['POST'])
-def predict_day():  # only get as input the day, not the features
+def predict_day():  # for day from producer
     try:
         user_input = request.json
 
@@ -151,7 +145,7 @@ def predict_day():  # only get as input the day, not the features
         return jsonify({'prediction': 'unexpected error'})
 
 @app.route('/predict/days', methods=['POST'])
-def predict_days():
+def predict_days(): # for experiments page
     try:
         user_input = request.json
         
