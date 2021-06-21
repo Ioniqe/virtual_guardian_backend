@@ -3,7 +3,7 @@ from flask import Flask, request, jsonify
 import pickle 
 from flask_cors import CORS
 
-from utils import getFeatures_duration, getFeatures_durationFrequencyRatio, getFeatures_duration_forDay, getFeatures_frequency, getFeatures_frequency_forDay, get_features_from_days
+from utils import getFeatures_duration_forDay, getFeatures_frequency_forDay, get_features_from_days
 from utils import getFeatures_durationFrequencyRatio_forDay
 
 from sklearn.linear_model import LogisticRegression
@@ -26,14 +26,6 @@ app.config['MYSQL_PASSWORD'] = 'ioniqe'
 app.config['MYSQL_DB'] = 'virtual_angel'
 
 mysql = MySQL(app)
-
-# model_type_in_training = 'logisticRegression'
-# model_in_training = pickle.load(open('anomaly_detection.pkl', 'rb'))
-# features_for_training = 'durationFrequencyRatio'
-
-# model_type_in_use = 'logisticRegression'
-# model_in_use = pickle.load(open('anomaly_detection.pkl', 'rb'))
-# features_in_use = 'durationFrequencyRatio'
 
 model_type_in_training = ''
 model_in_training = ''
