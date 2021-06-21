@@ -35,18 +35,7 @@ public class Patient  implements Serializable{
     private Caregiver caregiver;
 
     @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Treatment> listOfTreatments;
-
-    @OneToMany(mappedBy = "patient", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Emergency> listOfEmergencies;
-
-    @ManyToMany
-    @JoinTable(
-            name = "patient_disease",
-            joinColumns = @JoinColumn(name = "patient_id"),
-            inverseJoinColumns = @JoinColumn(name = "disease_id"))
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Set<Disease> listOfDiseases;
 
     public Patient() {
     }
@@ -56,8 +45,6 @@ public class Patient  implements Serializable{
         this.address = address;
         this.doctor = doctor;
         this.caregiver = caregiver;
-        this.listOfTreatments = new HashSet<>();
-        this.listOfDiseases = new HashSet<>();
         this.listOfEmergencies = new HashSet<>();
     }
 
@@ -66,8 +53,6 @@ public class Patient  implements Serializable{
         this.address = address;
         this.doctor = doctor;
         this.userId = user.getId();
-        this.listOfTreatments = new HashSet<>();
-        this.listOfDiseases = new HashSet<>();
         this.listOfEmergencies = new HashSet<>();
     }
 
@@ -109,22 +94,6 @@ public class Patient  implements Serializable{
 
     public void setCaregiver(Caregiver caregiver) {
         this.caregiver = caregiver;
-    }
-
-    public Set<Treatment> getListOfTreatments() {
-        return listOfTreatments;
-    }
-
-    public void setListOfTreatments(Set<Treatment> listOfTreatments) {
-        this.listOfTreatments = listOfTreatments;
-    }
-
-    public Set<Disease> getListOfDiseases() {
-        return listOfDiseases;
-    }
-
-    public void setListOfDiseases(Set<Disease> listOfDiseases) {
-        this.listOfDiseases = listOfDiseases;
     }
 
     public Set<Emergency> getListOfEmergencies() {

@@ -1,10 +1,8 @@
 package app.virtual_guardian.controller;
 
 import app.virtual_guardian.dto.PatientDTO;
-import app.virtual_guardian.dto.TreatmentDTO;
 import app.virtual_guardian.dto.UserDTO;
 import app.virtual_guardian.dto.builder.PatientBuilder;
-import app.virtual_guardian.dto.builder.TreatmentBuilder;
 import app.virtual_guardian.dto.builder.UserBuilder;
 import app.virtual_guardian.entity.*;
 import app.virtual_guardian.service.*;
@@ -160,20 +158,6 @@ public class PatientController {
 
 
         return new ResponseEntity<>(patientsList, HttpStatus.OK);
-    }
-
-    //---------------------------------GET TREATMENTS OF PATIENT--------------------------------- TODO
-    @RequestMapping(value = "/treatments/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<List<TreatmentDTO>> getTreatmentsOfPatient(@PathVariable("userId") String userId) {
-        UserDTO userDTO = verifyPatientExistence(userId);
-        if (userDTO == null)
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-
-        Patient patient = patientService.getPatient(userId);
-        Set<Treatment> treatments = patient.getListOfTreatments();
-
-        List<TreatmentDTO> treatmentDTOS = TreatmentBuilder.toTreatmentDTOListFromTreatmentSet(treatments);
-        return new ResponseEntity<>(treatmentDTOS, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/sendEmergency/{patientUserId}", method = RequestMethod.GET)
