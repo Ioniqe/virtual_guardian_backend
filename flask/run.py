@@ -97,7 +97,7 @@ def train_model():
         user_input_algorithm = user_input['algorithm']
         user_input_features = user_input['features']
 
-        cur.execute("SELECT * FROM ml_variables WHERE model_type_in_use = \'" + user_input_algorithm + "\' AND features_in_use = \'" + user_input_features + "\' ORDER BY date_added DESC LIMIT 1")
+        cur.execute("SELECT * FROM ml_variables WHERE model_type_in_use = \'" + user_input_algorithm + "\' AND features_in_use = \'" + user_input_features + "\'")
         existing_models = cur.fetchall()
 
         x_train = []
@@ -110,31 +110,6 @@ def train_model():
         global features_for_training
 
         found_model = find_model_in_db(existing_models)
-        # found_model = ''
-
-        # # if we have found an/several existing model(s) with the given algorithm and feature extraction method, 
-        # # we also need to verify its/theirs labeled days list, since we might have trained that existing model on different labeled days
-        # if len(existing_models): 
-        #     cur.execute('SELECT * FROM labeled_days');
-        #     labeled_days = cur.fetchall() # get labeled days for this moment
-
-        #     for model in existing_models:
-        #         cur.execute("SELECT * FROM labeled_days_of_model WHERE ml_variable_id = '%s'" % model[0])
-        #         labeled_days_of_model = cur.fetchall() # get labeled days at the moment of this model's creation
-                
-        #         if len(labeled_days_of_model) > 0:
-        #             i = 0
-        #             while i < len(labeled_days):
-        #                 if labeled_days_of_model[i][2] != labeled_days[i][2]:
-        #                     i = len(labeled_days)
-
-        #                 if i == len(labeled_days) - 1:
-        #                     found_model = model
-
-        #                 i += 1
-
-        # print('found_model')
-        # print(found_model)
 
         if found_model != '': # if model with needed algorithm and features already exists => load model
             print('ALREADY EXISTS')
@@ -213,7 +188,7 @@ def set_default():
     cur.execute("SELECT * FROM labeled_days")
     labeledDays = cur.fetchall()
 
-    cur.execute("SELECT * FROM ml_variables WHERE model_type_in_use = \'" + model_type_in_use + "\' AND features_in_use = \'" + features_in_use + "\' ORDER BY date_added DESC LIMIT 1")
+    cur.execute("SELECT * FROM ml_variables WHERE model_type_in_use = \'" + model_type_in_use + "\' AND features_in_use = \'" + features_in_use + "\'")
     existing_models = cur.fetchall()
 
     found_model = ''
@@ -221,10 +196,30 @@ def set_default():
 
     # if algorithm with features and same labeled days list already exists in db, don't save it again
     if found_model != '':
+        #----------------------------------------update currently_using of the outdated model to 0------------------------- 
+        cur.execute("SELECT * FROM ml_variables WHERE currently_using = 1")
+        ml_variables = cur.fetchall()
+        cur.execute("UPDATE ml_variables SET currently_using = 0 WHERE id = '%s'" % ml_variables[0][0])
+        mysql.connection.commit()
+
+        #----------------------------------------update currently_using of the now current model to 1------------------------- 
+        cur.execute("UPDATE ml_variables SET currently_using = 1 WHERE id = '%s'" % found_model[0])
+        mysql.connection.commit()
+
         cur.close()
         return '200'
 
     time = datetime.utcnow()  
+
+    #----------------------------------------update currently_using of the outdated model to 0------------------------- 
+    cur.execute("SELECT id FROM ml_variables WHERE currently_using = 1")
+    ml_variables = cur.fetchall()
+    print('=============')
+    print(ml_variables)
+
+    if len(ml_variables) > 0:
+        cur.execute("UPDATE ml_variables SET currently_using = 0 WHERE id = '%s'" % ml_variables[0])
+        mysql.connection.commit()
 
     # ---------------------------------------save on disk---------------------------------------
     saved_model_file_name = './saved_models/model_' + time.strftime('%Y-%m-%d_%H-%M-%S') + '.pkl'
@@ -233,7 +228,7 @@ def set_default():
 
     # save in db
     # cur = mysql.connection.cursor() 
-    cur.execute("INSERT INTO ml_variables(model_type_in_use, features_in_use, path, date_added) VALUES(%s, %s, %s, %s)", (model_type_in_use, features_in_use, saved_model_file_name, time.strftime('%Y-%m-%d %H:%M:%S')  ))  #model_type_in_use, features_in_use, path, date_added
+    cur.execute("INSERT INTO ml_variables(model_type_in_use, features_in_use, path, date_added, currently_using) VALUES(%s, %s, %s, %s, %s)", (model_type_in_use, features_in_use, saved_model_file_name, time.strftime('%Y-%m-%d %H:%M:%S'), 1 ))  #model_type_in_use, features_in_use, path, date_added
     mysql.connection.commit()
     
     #-------------------------------also save the labeled days at that moment-------------------------------
@@ -265,7 +260,7 @@ def get_ml_variables():
 
     # get last thing from db
     cur = mysql.connection.cursor() 
-    cur.execute("SELECT * FROM ml_variables ORDER BY id DESC LIMIT 1")
+    cur.execute("SELECT * FROM ml_variables WHERE currently_using = 1")
     ml_variables = cur.fetchall()
 
     if cur.rowcount > 0:
@@ -289,7 +284,7 @@ def get_ml_variables():
     global testing_data
 
     activities = getAllDays()
-    training_data, testing_data = train_test_split(activities, test_size=0.20, random_state=0) # deocamdata split-uieste pe activitati ni loc de zile
+    training_data, testing_data = train_test_split(activities, test_size=0.20, random_state=0)
 
     return '200'
 
