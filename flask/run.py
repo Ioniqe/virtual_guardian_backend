@@ -55,7 +55,37 @@ def get_split_data(dataset_type):
     except:
         return '500'
 
-@app.route('/train_model', methods=['POST']) #aici ar trebui sa  primesc doar item-uri din lista mare de test
+def find_model_in_db(existing_models):
+    found_model = ''
+
+    cur = mysql.connection.cursor() 
+    # if we have found an/several existing model(s) with the given algorithm and feature extraction method, 
+    # we also need to verify its/theirs labeled days list, since we might have trained that existing model on different labeled days
+    if len(existing_models): 
+        cur.execute('SELECT * FROM labeled_days');
+        labeled_days = cur.fetchall() # get labeled days for this moment
+
+        for model in existing_models:
+            cur.execute("SELECT * FROM labeled_days_of_model WHERE ml_variable_id = '%s'" % model[0])
+            labeled_days_of_model = cur.fetchall() # get labeled days at the moment of this model's creation
+            
+            if len(labeled_days_of_model) > 0:
+                i = 0
+                while i < len(labeled_days):
+                    if labeled_days_of_model[i][2] != labeled_days[i][2]:
+                        i = len(labeled_days)
+
+                    if i == len(labeled_days) - 1:
+                        found_model = model
+
+                    i += 1
+
+    print('found_model')
+    print(found_model)
+    cur.close()
+    return found_model
+
+@app.route('/train_model', methods=['POST']) 
 def train_model():
     try:
         user_input = request.json
@@ -68,7 +98,7 @@ def train_model():
         user_input_features = user_input['features']
 
         cur.execute("SELECT * FROM ml_variables WHERE model_type_in_use = \'" + user_input_algorithm + "\' AND features_in_use = \'" + user_input_features + "\' ORDER BY date_added DESC LIMIT 1")
-        existing_model = cur.fetchall()
+        existing_models = cur.fetchall()
 
         x_train = []
         x_test = []
@@ -79,11 +109,38 @@ def train_model():
         global model_type_in_training
         global features_for_training
 
-        if len(existing_model): # if model with needed algorithm and features already exists => load model
+        found_model = find_model_in_db(existing_models)
+        # found_model = ''
+
+        # # if we have found an/several existing model(s) with the given algorithm and feature extraction method, 
+        # # we also need to verify its/theirs labeled days list, since we might have trained that existing model on different labeled days
+        # if len(existing_models): 
+        #     cur.execute('SELECT * FROM labeled_days');
+        #     labeled_days = cur.fetchall() # get labeled days for this moment
+
+        #     for model in existing_models:
+        #         cur.execute("SELECT * FROM labeled_days_of_model WHERE ml_variable_id = '%s'" % model[0])
+        #         labeled_days_of_model = cur.fetchall() # get labeled days at the moment of this model's creation
+                
+        #         if len(labeled_days_of_model) > 0:
+        #             i = 0
+        #             while i < len(labeled_days):
+        #                 if labeled_days_of_model[i][2] != labeled_days[i][2]:
+        #                     i = len(labeled_days)
+
+        #                 if i == len(labeled_days) - 1:
+        #                     found_model = model
+
+        #                 i += 1
+
+        # print('found_model')
+        # print(found_model)
+
+        if found_model != '': # if model with needed algorithm and features already exists => load model
             print('ALREADY EXISTS')
-            features_for_training = existing_model[0][2] # features_for_training
-            model_type_in_training = existing_model[0][1] # model_type_in_training
-            model_path = existing_model[0][3]  # path
+            features_for_training = found_model[2] # features_for_training
+            model_type_in_training = found_model[1] # model_type_in_training
+            model_path = found_model[3]  # path
 
             model_in_training = pickle.load(open(model_path, 'rb'))
             processed_features = get_features_from_days(user_input_features, labeledDays)
@@ -151,17 +208,51 @@ def set_default():
     model_in_use = model_in_training
     features_in_use = features_for_training
 
+    #------------------------check if alg with features and same labeled days list already in db------------------- 
+    cur = mysql.connection.cursor() 
+    cur.execute("SELECT * FROM labeled_days")
+    labeledDays = cur.fetchall()
+
+    cur.execute("SELECT * FROM ml_variables WHERE model_type_in_use = \'" + model_type_in_use + "\' AND features_in_use = \'" + features_in_use + "\' ORDER BY date_added DESC LIMIT 1")
+    existing_models = cur.fetchall()
+
+    found_model = ''
+    found_model = find_model_in_db(existing_models)
+
+    # if algorithm with features and same labeled days list already exists in db, don't save it again
+    if found_model != '':
+        cur.close()
+        return '200'
+
     time = datetime.utcnow()  
 
-    # save on disk
+    # ---------------------------------------save on disk---------------------------------------
     saved_model_file_name = './saved_models/model_' + time.strftime('%Y-%m-%d_%H-%M-%S') + '.pkl'
     print(saved_model_file_name)
     pickle.dump(model_in_use, open(saved_model_file_name, 'wb'))
 
     # save in db
-    cur = mysql.connection.cursor() 
+    # cur = mysql.connection.cursor() 
     cur.execute("INSERT INTO ml_variables(model_type_in_use, features_in_use, path, date_added) VALUES(%s, %s, %s, %s)", (model_type_in_use, features_in_use, saved_model_file_name, time.strftime('%Y-%m-%d %H:%M:%S')  ))  #model_type_in_use, features_in_use, path, date_added
     mysql.connection.commit()
+    
+    #-------------------------------also save the labeled days at that moment-------------------------------
+    model_id = cur.lastrowid
+
+    cur.execute("SELECT * FROM labeled_days")
+    labeledDays_atThatMoment = cur.fetchall()
+
+    labeledDays = []
+    for day in labeledDays_atThatMoment:
+        labeledDay = {'day': day[1], 'label': day[2], 'ml_variable_id': model_id}
+        labeledDays.append(labeledDay)
+
+    cur.executemany("""
+    INSERT INTO labeled_days_of_model(day, label, ml_variable_id)
+    VALUES (%(day)s, %(label)s, %(ml_variable_id)s)""", labeledDays)
+
+    mysql.connection.commit()
+
     cur.close()
 
     return '200'
@@ -233,7 +324,7 @@ def predict_day():  # for day from producer
         print('EXCEPTION')
         return jsonify({'prediction': 'unexpected error'})
 
-@app.route('/predict/days', methods=['POST'])
+@app.route('/predict/days', methods=['POST']) #aici ar trebui sa  primesc doar item-uri din lista de test
 def predict_days(): # for experiments page
     try:
         user_input = request.json
