@@ -99,9 +99,7 @@ def getFeatures_durationFrequencyRatio(labeledDays):
             activity_names.append(_list[3])
 
         if day == _list[0] and i != 0: 
-            print('eeeeeeeeeeeeeeee')
             get_list_of_day(day, activities).append({'activity': _list[3], 'start_time': _list[1], 'end_time':_list[2]})
-            print('==============================')
         else:
             day = _list[0]
             processed.append([day])  
