@@ -159,7 +159,6 @@ def train_model():
 
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         print(model_in_training)
-        # print(features_for_training)
 
         score = model_in_training.score(x_test, y_test)
         print(score)
@@ -214,8 +213,6 @@ def set_default():
     #----------------------------------------update currently_using of the outdated model to 0------------------------- 
     cur.execute("SELECT id FROM ml_variables WHERE currently_using = 1")
     ml_variables = cur.fetchall()
-    print('=============')
-    print(ml_variables)
 
     if len(ml_variables) > 0:
         cur.execute("UPDATE ml_variables SET currently_using = 0 WHERE id = '%s'" % ml_variables[0])
@@ -223,7 +220,6 @@ def set_default():
 
     # ---------------------------------------save on disk---------------------------------------
     saved_model_file_name = './saved_models/model_' + time.strftime('%Y-%m-%d_%H-%M-%S') + '.pkl'
-    print(saved_model_file_name)
     pickle.dump(model_in_use, open(saved_model_file_name, 'wb'))
 
     # save in db
