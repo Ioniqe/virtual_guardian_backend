@@ -3,12 +3,12 @@ from flask import Flask, request, jsonify
 import pickle 
 from flask_cors import CORS
 
-from utils import getFeatures_duration_forDay, getFeatures_frequency_forDay, get_features_from_days
+from utils import getAllDays, getFeatures_duration_forDay, getFeatures_frequency_forDay, get_features_from_days
 from utils import getFeatures_durationFrequencyRatio_forDay
 
+from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import svm
 from sklearn.naive_bayes import GaussianNB
@@ -16,6 +16,7 @@ from sklearn.naive_bayes import GaussianNB
 from flask_mysqldb import MySQL
 import pickle
 from datetime import datetime   
+
 
 app = Flask(__name__)
 CORS(app)
@@ -35,7 +36,26 @@ model_type_in_use = ''
 model_in_use = ''
 features_in_use = ''
 
-@app.route('/train_model', methods=['POST'])
+training_data = []
+testing_data = []
+
+@app.route('/get_split_data/<dataset_type>', methods=['GET'])
+def get_split_data(dataset_type):
+    try:
+        global training_data
+        global testing_data
+
+        if dataset_type == 'train':
+            return jsonify(training_data)
+        elif dataset_type == 'test':
+            return jsonify(testing_data)
+        else: 
+            return '500'
+
+    except:
+        return '500'
+
+@app.route('/train_model', methods=['POST']) #aici ar trebui sa  primesc doar item-uri din lista mare de test
 def train_model():
     try:
         user_input = request.json
@@ -172,6 +192,14 @@ def get_ml_variables():
     print("----get_ml_variables features in use")
     print(features_in_use)
     cur.close()
+
+
+    global training_data
+    global testing_data
+
+    activities = getAllDays()
+    training_data, testing_data = train_test_split(activities, test_size=0.20, random_state=0) # deocamdata split-uieste pe activitati ni loc de zile
+
     return '200'
 
 @app.route('/predict/day', methods=['POST'])

@@ -4,7 +4,9 @@ from sklearn.model_selection import train_test_split
 def get_list_of_day(key, activities):
     for act in activities:
         if act['day'] == key:
-            return act['list']
+            if('list' in act):
+                return act['list']
+            return act['activities']
     return []
 
 def verify_activity_existence(activity_name, _list):
@@ -97,7 +99,9 @@ def getFeatures_durationFrequencyRatio(labeledDays):
             activity_names.append(_list[3])
 
         if day == _list[0] and i != 0: 
+            print('eeeeeeeeeeeeeeee')
             get_list_of_day(day, activities).append({'activity': _list[3], 'start_time': _list[1], 'end_time':_list[2]})
+            print('==============================')
         else:
             day = _list[0]
             processed.append([day])  
@@ -239,3 +243,20 @@ def getFeatures_frequency(labeledDays):
 
     features = {'data': x, 'labels': y}
     return features
+
+def getAllDays(): 
+    activities = []
+    day = ''
+    i = 0;
+
+    for line in Lines:
+        _list  = line.split()
+
+        if day == _list[0] and i != 0: 
+            get_list_of_day(day, activities).append({'day': day, 'activity': _list[3], 'startTime': _list[1], 'endTime':_list[2]})
+        else:
+            day = _list[0]
+            activities.append({'day':day, 'activities':[{'day': day, 'activity': _list[3], 'startTime': _list[1], 'endTime':_list[2]}]})
+        i += 1
+
+    return activities
