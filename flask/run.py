@@ -11,7 +11,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn import svm
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.naive_bayes import GaussianNB
 
 from flask_mysqldb import MySQL
 import pickle
@@ -108,14 +108,14 @@ def train_model():
                 model_in_training = svm.SVC(kernel='linear').fit(x_train, y_train) 
                 model_type_in_training = 'svm'
             elif user_input['algorithm'] == "naiveBayes":
-                model_in_training = MultinomialNB().fit(x_train, y_train)
+                model_in_training = GaussianNB().fit(x_train, y_train)
                 model_type_in_training = 'naiveBayes'
             else: return jsonify({'score': '404'})
 
 
         print('~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
         print(model_in_training)
-        print(features_for_training)
+        # print(features_for_training)
 
         score = model_in_training.score(x_test, y_test)
         print(score)
@@ -165,16 +165,20 @@ def get_ml_variables():
     cur.execute("SELECT * FROM ml_variables ORDER BY id DESC LIMIT 1")
     ml_variables = cur.fetchall()
 
-    model_path = ml_variables[0][3]  # path
-    features_in_use = ml_variables[0][2] # features_in_use
-    model_type_in_use = ml_variables[0][1] # model_type_in_use
-    model_in_use = pickle.load(open(model_path, 'rb'))
+    if cur.rowcount > 0:
+        model_path = ml_variables[0][3]  # path
+        features_in_use = ml_variables[0][2] # features_in_use
+        model_type_in_use = ml_variables[0][1] # model_type_in_use
+        model_in_use = pickle.load(open(model_path, 'rb'))
+    else:
+        features_in_use = 'durationFrequencyRatio'
+        model_type_in_use = 'logisticRegression'
+        model_in_use = pickle.load(open('anomaly_detection.pkl', 'rb'))
 
     print("----get_ml_variables model in use")
     print(model_in_use)
     print("----get_ml_variables features in use")
     print(features_in_use)
-
     cur.close()
     return '200'
 
@@ -243,7 +247,7 @@ def predict_days(): # for experiments page
         print('EXCEPTION')
         return jsonify({'predictions': 'unexpected error'})
 
-@app.route('/predict/disease', methods=['POST'])
+@app.route('/predict/disease', methods=['POST']) #TODO modify classif alg for disease detection to kNN 
 def predict_disease():
     try:
         user_input = request.json
