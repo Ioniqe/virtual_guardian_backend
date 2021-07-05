@@ -54,7 +54,7 @@ public class CaregiverController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    //----------------------------------READ---------------------------------- TODO
+    //----------------------------------READ----------------------------------
     @RequestMapping(value = "/caregiver/{userId}", method = RequestMethod.GET)
     public ResponseEntity<UserDTO> readDoctor(@PathVariable("userId") String userId) {
         UserDTO dto = verifyCaregiverExistence(userId);

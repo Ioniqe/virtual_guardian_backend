@@ -349,7 +349,7 @@ def predict_days(): # for experiments page
         print('EXCEPTION')
         return jsonify({'predictions': 'unexpected error'})
 
-@app.route('/predict/disease', methods=['POST']) #TODO modify classif alg for disease detection to kNN 
+@app.route('/predict/disease', methods=['POST'])
 def predict_disease():
     try:
         user_input = request.json

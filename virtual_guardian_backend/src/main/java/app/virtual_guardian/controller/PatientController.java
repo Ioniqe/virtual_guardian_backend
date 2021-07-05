@@ -40,7 +40,7 @@ public class PatientController {
         this.emergencyService = emergencyService;
     }
 
-    //---------------------------------CREATE--------------------------------- TODO
+    //---------------------------------CREATE---------------------------------
     @RequestMapping(value = "/patient/new/{doctorUserId}", method = {RequestMethod.GET, RequestMethod.POST})
     public ResponseEntity savePatient(@RequestBody PatientDTO patientDTO, @PathVariable("doctorUserId") String doctorUserId) {
         UserDTO userDTO = UserBuilder.toUserDTOFromPatientDTO(patientDTO);
@@ -65,7 +65,7 @@ public class PatientController {
         return dto;
     }
 
-    //-----------------------------------READ------------------------------ TODO
+    //-----------------------------------READ------------------------------
     @RequestMapping(value = "/patient/{userId}", method = RequestMethod.GET)
     public ResponseEntity<PatientDTO> readPatient(@PathVariable("userId") String userId) {
         UserDTO userDTO = verifyPatientExistence(userId);
@@ -97,7 +97,6 @@ public class PatientController {
 
     //---------------------------------ASSIGN CAREGIVER---------------------------------
     @RequestMapping(value = "/patient/set_caregiver/{patientUserId}/{caregiverUserId}", method = RequestMethod.POST)
-    //TODO test thoroughly
     public ResponseEntity setCaregiverToPatientByPeopleId(@PathVariable("patientUserId") String patientUserId, @PathVariable("caregiverUserId") String caregiverUserId) {
         UserDTO userDTO = verifyPatientExistence(patientUserId);
         if (userDTO == null)
@@ -167,18 +166,15 @@ public class PatientController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         Patient patient = patientService.getPatient(userId);
 
-        String doctorUserId = patient.getDoctor().getUserId();
-
         JSONObject item = new JSONObject();
-        item.put("userId", doctorUserId);
-        item.put("patientName", patient.getUser().getFirstname() + " " + patient.getUser().getLastname());
-        item.put("message", "emergency");
 
-        simpMessagingTemplate.convertAndSend("/topic/patient_emergency", item.toString());
+
+
 
         if (patient.getCaregiver() != null) {
+            item.put("patientName", patient.getUser().getFirstname() + " " + patient.getUser().getLastname());
+            item.put("message", "emergency");
             String caregiverUserId = patient.getCaregiver().getUserId();
-            item.remove("userId");
             item.put("userId", caregiverUserId);
             simpMessagingTemplate.convertAndSend("/topic/patient_emergency", item.toString());
         }
@@ -192,15 +188,13 @@ public class PatientController {
 
         //send emergency object
         item = new JSONObject();
-        item.put("id", emergency.getId());
-        item.put("patientName", patient.getUser().getFirstname()+ " " + patient.getUser().getLastname());
-        item.put("date", emergency.getDate());
-        item.put("userId", patient.getDoctor().getUserId());
-        simpMessagingTemplate.convertAndSend("/topic/emergency_object", item.toString());
 
-        if(emergency.getPatient().getCaregiver() != null){
+
+        if(patient.getCaregiver() != null){
+            item.put("id", emergency.getId());
+            item.put("patientName", patient.getUser().getFirstname()+ " " + patient.getUser().getLastname());
+            item.put("date", emergency.getDate());
             String caregiverUserId = patient.getCaregiver().getUserId();
-            item.remove("userId");
             item.put("userId", caregiverUserId);
             simpMessagingTemplate.convertAndSend("/topic/emergency_object", item.toString());
         }

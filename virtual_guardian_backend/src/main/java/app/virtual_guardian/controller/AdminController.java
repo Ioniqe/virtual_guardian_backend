@@ -52,7 +52,7 @@ public class AdminController {
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
-    //----------------------------------READ---------------------------------- TODO
+    //----------------------------------READ----------------------------------
     @RequestMapping(value = "/admin/{userId}", method = RequestMethod.GET)
     public ResponseEntity<UserDTO> readAdmin(@PathVariable("userId") String userId) {
         UserDTO dto = verifyAdminExistence(userId);
